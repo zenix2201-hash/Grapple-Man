@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://cr0i1obdfvlpe"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s1fef"]
+albedo_color = Color(0.27752772, 0.27752772, 0.27752772, 1)
+
+[node name="Node3D" type="Node3D" unique_id=1036528646]
+
+[node name="Corridor" type="Node" parent="." unique_id=1857784481]
+
+[node name="Wall" type="CSGBox3D" parent="Corridor" unique_id=1341692908]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.006397724, 3.4944484, -14.5)
+size = Vector3(1, 6, 30)
+
+[node name="Floor" type="CSGBox3D" parent="Corridor" unique_id=601237256]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0, -14.5)
+size = Vector3(10, 1, 30)
+
+[node name="Wall 1" type="CSGBox3D" parent="Corridor" unique_id=917249150]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.006397, 3.4944484, -14.5)
+size = Vector3(1, 6, 30)
+
+[node name="Roof" type="CSGBox3D" parent="Corridor" unique_id=1220126912]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.517086, 6, -14.502643)
+size = Vector3(10, 1, 30)
+
+[node name="Wall 2" type="CSGBox3D" parent="Corridor" unique_id=304863580]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55173, 3.0218134, -0.06662351)
+size = Vector3(8.076172, 5.0674133, 1.1210938)
+material = SubResource("StandardMaterial3D_s1fef")
