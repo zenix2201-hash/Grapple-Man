@@ -27,6 +27,9 @@ var grapple_target: Vector3 = Vector3.ZERO
 #Grapple Line
 @onready var grapple_line: MeshInstance3D = $CollisionShape3D/head/Camera3D/Grapple_Line
 
+#Speed Counter
+@onready var speed_counter = $CanvasLayer/speed_counter
+
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -39,6 +42,9 @@ func _unhandled_input(event: InputEvent) -> void: #mouse look with vertical clam
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _physics_process(delta: float) -> void: #Gravity
+	
+	var current_speed = Vector2(velocity.x, velocity.z).length()
+	
 	if not is_on_floor():
 		velocity.y -= gravity * delta 
 	
@@ -53,7 +59,9 @@ func _physics_process(delta: float) -> void: #Gravity
 		velocity.z = direction.z * speed
 	else:
 		velocity.x = move_toward(velocity.x, 0, speed)
-		velocity.z = move_toward(velocity.z, 0, speed) 
+		velocity.z = move_toward(velocity.z, 0, speed)
+		 
+	speed_counter.text = "Speed " + str(round(current_speed))
 	
 	GDScript
 	_process_wall_run(delta)
