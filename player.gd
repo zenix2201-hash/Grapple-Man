@@ -27,6 +27,10 @@ var grapple_target: Vector3 = Vector3.ZERO
 #Grapple Line
 @onready var grapple_line: MeshInstance3D = $CollisionShape3D/head/Camera3D/Grapple_Line
 
+#Sprint
+@export var walk_speed: float = 5.0
+@export var sprint_speed: float = 9.8
+
 #Speed Counter
 @onready var speed_counter = $CanvasLayer/speed_counter
 
@@ -43,40 +47,43 @@ func _unhandled_input(event: InputEvent) -> void: #mouse look with vertical clam
 
 func _physics_process(delta: float) -> void: #Gravity
 	
+	# Handle Sprint Input (switches speed based on shift/sprint key)
+	if Input.is_action_pressed("Sprint") and is_on_floor():
+		speed = sprint_speed
+	else:
+		speed = walk_speed
+		
 	var current_speed = Vector2(velocity.x, velocity.z).length()
 	
-	if not is_on_floor():
-		velocity.y -= gravity * delta 
-	
-	if Input.is_action_just_pressed("jump") and is_on_floor(): #Jump
-		velocity.y = jump_velocity
+	# Standard gravity & jumping (bypassed while grappling so swing physics take over)
+	if not is_grappling:
+		if not is_on_floor():
+			velocity.y -= gravity * delta 
+		
+		if Input.is_action_just_pressed("jump") and is_on_floor(): #Jump
+			velocity.y = jump_velocity
 	
 	var input_dir := Input.get_vector("move_left", "move_right", "move_up", "move_down") 
-	var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
-	if direction:
-		velocity.x = direction.x * speed
-		velocity.z = direction.z * speed
-	else:
-		velocity.x = move_toward(velocity.x, 0, speed)
-		velocity.z = move_toward(velocity.z, 0, speed)
-		 
+	# Standard WASD movement (bypassed while grappling to protect momentum)
+	if not is_grappling:
+		var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+
+		if direction:
+			velocity.x = direction.x * speed
+			velocity.z = direction.z * speed
+		else:
+			velocity.x = move_toward(velocity.x, 0, speed)
+			velocity.z = move_toward(velocity.z, 0, speed)
+			
 	speed_counter.text = "Speed " + str(round(current_speed))
 	
-	GDScript
 	_process_wall_run(delta)
 	_process_grapple(delta)
-	
-
-	
 	_process_wall_run(delta)
-	
 	move_and_slide()
-	
 	_process_camera_effects(delta, input_dir)
-	
-	_process_camera_effects(delta, input_dir)
-	
+
 func _process_camera_effects(delta: float, input_dir: Vector2) -> void:
 	if enable_head_bob and is_on_floor() and velocity.length() > 0.1:
 		bob_time += delta * velocity.length() * bob_frequency
@@ -116,33 +123,34 @@ func _process_wall_run(delta: float) -> void:
 		is_wall_running = false
 
 #Grapple
+var rope_length: float = 0.0
+
 func _process_grapple(delta: float) -> void:
 	if Input.is_action_just_pressed("grapple"):
 		if grapple_ray.is_colliding():
 			grapple_target = grapple_ray.get_collision_point()
+			rope_length = global_position.distance_to(grapple_target)
 			is_grappling = true
 			grapple_line.visible = true
 			
-	if Input.is_action_just_released("grapple"):
+	# If you release grapple OR press jump while grappling, handle exit
+	if Input.is_action_just_released("grapple") or (is_grappling and Input.is_action_just_pressed("jump")):
+		
+		# Jump-to-zip: Blasts you straight toward the hook when you press jump mid-swing
+		if is_grappling and Input.is_action_just_pressed("jump"):
+			var target_dir = (grapple_target - global_position).normalized()
+			velocity = target_dir * 45.0 # High-speed launch directly to the anchor
+			
 		is_grappling = false
 		grapple_line.visible = false
+		return
 		
 	if is_grappling:
-		# Shifts the start point forward and to the right so it doesn't block your crosshair
+		# Keep visual line offsets
 		var forward_offset = grapple_ray.global_transform.basis.z * -0.5
-		var side_offset = grapple_ray.global_transform.basis.x * 0.4 # Change to -0.4 to move it to the left instead
+		var side_offset = grapple_ray.global_transform.basis.x * 0.4 
 		var start_pos = grapple_ray.global_position + forward_offset + side_offset
 		
-		var pull_vector = grapple_target - start_pos
-		var distance = pull_vector.length()
-		
-		# Stop grappling automatically when you arrive at the wall
-		if distance < 2.0:
-			is_grappling = false
-			grapple_line.visible = false
-			velocity = Vector3.ZERO
-			return
-			
 		# --- VISUAL LINE CODE ---
 		grapple_line.rotation = Vector3.ZERO
 		grapple_line.global_position = (start_pos + grapple_target) / 2.0
@@ -151,11 +159,32 @@ func _process_grapple(delta: float) -> void:
 		
 		var cylinder_mesh: CylinderMesh = grapple_line.mesh as CylinderMesh
 		if cylinder_mesh:
-			cylinder_mesh.height = distance
+			cylinder_mesh.height = start_pos.distance_to(grapple_target)
 		# ------------------------
 			
-		var pull_direction = pull_vector.normalized()
-		pull_direction.y *= 0.4 
-		pull_direction = pull_direction.normalized()
+		# --- MOMENTUM-PRESERVING SWING PHYSICS ---
+		var to_target = grapple_target - global_position
+		var current_distance = to_target.length()
+		var dir_to_target = to_target.normalized()
 		
-		velocity = pull_direction * grapple_speed
+		# Balanced asymmetric gravity
+		if not is_on_floor():
+			if velocity.y < 0:
+				velocity.y -= 35.0 * delta # Heavy falling gravity for speed
+			else:
+				velocity.y -= 28.0 * delta # Strong upward gravity to arc you down
+				
+		# Rope constraint tension force: redirects your existing run/jump speed into an arc
+		if current_distance > rope_length:
+			var radial_velocity = velocity.dot(dir_to_target)
+			if radial_velocity < 0:
+				velocity -= dir_to_target * radial_velocity
+			velocity += dir_to_target * (current_distance - rope_length) * 40.0 * delta
+			
+		# Cap maximum upward velocity so it doesn't rocket you
+		if velocity.y > 15.0:
+			velocity.y = 15.0
+			
+		# Lower friction so your sprint/jump momentum carries far without dying out instantly
+		velocity.x *= 0.998
+		velocity.z *= 0.998
