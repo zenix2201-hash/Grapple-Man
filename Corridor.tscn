@@ -5,13 +5,21 @@
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s1fef"]
 albedo_color = Color(0.27752772, 0.27752772, 0.27752772, 1)
 
-[node name="Node3D" type="Node3D" unique_id=1036528646]
+[node name="Node3D" type="Node3D" unique_id=1589607755]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1155226374]
-transform = Transform3D(-0.8886173, 0.2265462, -0.39879343, 0.10412216, 0.946437, 0.3056394, 0.44667432, 0.23007323, -0.86460876, 1.0998707, 1.9988756, -40.72251)
+transform = Transform3D(-0.8886173, 0.22654621, -0.3987934, 0.10412216, 0.94643706, 0.30563948, 0.44667432, 0.23007324, -0.8646088, 1.0998707, 1.9988756, -40.72251)
 shadow_enabled = true
 
-[node name="Corridor" type="Node" parent="." unique_id=1857784481]
+[node name="Player" parent="." unique_id=643253925 instance=ExtResource("1_yuu5i")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5302806, 1.3717918, -27.350698)
+
+[node name="Corridor" type="Node3D" parent="." unique_id=431859888]
+
+[node name="Wall2" type="CSGBox3D" parent="Corridor" unique_id=137229103]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.509625, 3.3743305, -44.36546)
+use_collision = true
+size = Vector3(1, 6, 19.124023)
 
 [node name="Wall" type="CSGBox3D" parent="Corridor" unique_id=1341692908]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.006397724, 3.4944484, -14.5)
@@ -33,11 +41,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.517086, 6, -14.502643)
 use_collision = true
 size = Vector3(10, 1, 30)
 
+[node name="Floor2" type="CSGBox3D" parent="Corridor" unique_id=886814979]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.156104, 0.0026350021, -44.469315)
+use_collision = true
+size = Vector3(81.09448, 1, 30)
+
+[node name="Floor3" type="CSGBox3D" parent="Corridor" unique_id=218918270]
+transform = Transform3D(0.9997882, 0.008597412, 0.018696018, 0, 0.9085413, -0.41779506, -0.02057806, 0.41770658, 0.9083489, -18.544664, 1.6260171, -40.520935)
+use_collision = true
+size = Vector3(5.861328, 1.0726929, 8.017578)
+
 [node name="Wall 2" type="CSGBox3D" parent="Corridor" unique_id=304863580]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55173, 3.0218134, -0.06662351)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55173, 3.0218134, -0.06662369)
 use_collision = true
 size = Vector3(8.076172, 5.0674133, 1.1210938)
 material = SubResource("StandardMaterial3D_s1fef")
-
-[node name="Player" parent="." unique_id=643253925 instance=ExtResource("1_yuu5i")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5302806, 1.3717918, -27.350698)
