@@ -1,6 +1,8 @@
 [gd_scene format=3 uid="uid://cr0i1obdfvlpe"]
 
 [ext_resource type="PackedScene" uid="uid://7w6llavxofx5" path="res://3Dplayer.tscn" id="1_yuu5i"]
+[ext_resource type="PackedScene" uid="uid://cbno17ejbl6y" path="res://jump_pad/boost_pickup.tscn" id="2_et0ic"]
+[ext_resource type="PackedScene" uid="uid://ce0gkocslorpj" path="res://jump_pad/jump_pad_logic.tscn" id="3_lcjpf"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s1fef"]
 albedo_color = Color(0.27752772, 0.27752772, 0.27752772, 1)
@@ -56,3 +58,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55173, 3.0218134, -0.066623
 use_collision = true
 size = Vector3(8.076172, 5.0674133, 1.1210938)
 material = SubResource("StandardMaterial3D_s1fef")
+
+[node name="Node3D" parent="." unique_id=464833380 instance=ExtResource("2_et0ic")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.9425755, 1.0118449, -51.131275)
+
+[node name="jump_pad" parent="." unique_id=599665179 instance=ExtResource("3_lcjpf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.838678, 0.75263405, -52.88509)
