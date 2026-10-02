@@ -32,7 +32,8 @@ var grapple_target: Vector3 = Vector3.ZERO
 @export var sprint_speed: float = 9.8
 
 #Speed Counter
-@onready var speed_counter = $CanvasLayer/speed_counter
+@onready var speed_counter_h = $CanvasLayer/speed_counter
+@onready var speed_counter_v = $CanvasLayer/speed_counter_v
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -53,7 +54,8 @@ func _physics_process(delta: float) -> void: #Gravity
 	else:
 		speed = walk_speed
 		
-	var current_speed = Vector2(velocity.x, velocity.z).length()
+	var current_speed_h = Vector2(velocity.x, velocity.z).length()
+	var current_speed_v = velocity.y
 	
 	# Standard gravity & jumping (bypassed while grappling so swing physics take over)
 	if not is_grappling:
@@ -76,7 +78,9 @@ func _physics_process(delta: float) -> void: #Gravity
 			velocity.x = move_toward(velocity.x, 0, speed)
 			velocity.z = move_toward(velocity.z, 0, speed)
 			
-	speed_counter.text = "Speed " + str(round(current_speed))
+	speed_counter_h.text = "H Speed " + str(round(current_speed_h))
+	speed_counter_v.text = "V Speed " + str(round(current_speed_v))
+	
 	
 	_process_wall_run(delta)
 	_process_grapple(delta)

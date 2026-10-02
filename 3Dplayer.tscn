@@ -57,9 +57,17 @@ layout_mode = 2
 texture = ExtResource("2_0eqm3")
 
 [node name="speed_counter" type="Label" parent="CanvasLayer" unique_id=290056829]
-offset_left = 12.000001
-offset_top = 2.000001
-offset_right = 77.0
-offset_bottom = 25.0
+offset_left = 12.000003
+offset_top = 115.0
+offset_right = 94.0
+offset_bottom = 138.0
 scale = Vector2(1.85, 1.85)
-text = "Speed: 0"
+text = "H Speed: 0"
+
+[node name="speed_counter_v" type="Label" parent="CanvasLayer" unique_id=648989546]
+offset_left = 11.000001
+offset_top = 57.999996
+offset_right = 93.0
+offset_bottom = 81.0
+scale = Vector2(1.85, 1.85)
+text = "V Speed: 0"
