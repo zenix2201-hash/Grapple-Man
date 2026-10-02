@@ -5,6 +5,14 @@
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_60xd1"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wac6g"]
+albedo_color = Color(0.95855755, 0.3065192, 0.86148053, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_fpyuh"]
+material = SubResource("StandardMaterial3D_wac6g")
+top_radius = 0.05
+bottom_radius = 0.05
+
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_fpyuh"]
 
 [node name="Player" type="CharacterBody3D" unique_id=643253925 groups=["player_character"]]
@@ -17,6 +25,12 @@ shape = SubResource("CapsuleShape3D_60xd1")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 
 [node name="Camera3D" type="Camera3D" parent="CollisionShape3D/head" unique_id=685629977]
+
+[node name="Grapple_hook" type="RayCast3D" parent="CollisionShape3D/head/Camera3D" unique_id=1396003660]
+target_position = Vector3(0, 0, -60)
+
+[node name="Grapple_Line" type="MeshInstance3D" parent="CollisionShape3D/head/Camera3D" unique_id=794467500]
+mesh = SubResource("CylinderMesh_fpyuh")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2133795594]
 mesh = SubResource("CapsuleMesh_fpyuh")

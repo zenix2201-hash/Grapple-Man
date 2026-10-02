@@ -17,6 +17,16 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 @onready var head: Node3D = $CollisionShape3D/head
 @onready var camera: Camera3D = $CollisionShape3D/head/Camera3D
 
+@export var grapple_speed: float = 35.0
+@onready var grapple_ray: RayCast3D = $CollisionShape3D/head/Camera3D/Grapple_hook
+
+#grapple
+var is_grappling: bool = false
+var grapple_target: Vector3 = Vector3.ZERO
+
+#Grapple Line
+@onready var grapple_line: MeshInstance3D = $CollisionShape3D/head/Camera3D/Grapple_Line
+
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -45,7 +55,12 @@ func _physics_process(delta: float) -> void: #Gravity
 		velocity.x = move_toward(velocity.x, 0, speed)
 		velocity.z = move_toward(velocity.z, 0, speed) 
 	
-	# CRITICAL FIX: Call your wall run logic before moving!
+	GDScript
+	_process_wall_run(delta)
+	_process_grapple(delta)
+	
+
+	
 	_process_wall_run(delta)
 	
 	move_and_slide()
@@ -91,4 +106,48 @@ func _process_wall_run(delta: float) -> void:
 			
 	else:
 		is_wall_running = false
+
+#Grapple
+func _process_grapple(delta: float) -> void:
+	if Input.is_action_just_pressed("grapple"):
+		if grapple_ray.is_colliding():
+			grapple_target = grapple_ray.get_collision_point()
+			is_grappling = true
+			grapple_line.visible = true
+			
+	if Input.is_action_just_released("grapple"):
+		is_grappling = false
+		grapple_line.visible = false
 		
+	if is_grappling:
+		# Shifts the start point forward and to the right so it doesn't block your crosshair
+		var forward_offset = grapple_ray.global_transform.basis.z * -0.5
+		var side_offset = grapple_ray.global_transform.basis.x * 0.4 # Change to -0.4 to move it to the left instead
+		var start_pos = grapple_ray.global_position + forward_offset + side_offset
+		
+		var pull_vector = grapple_target - start_pos
+		var distance = pull_vector.length()
+		
+		# Stop grappling automatically when you arrive at the wall
+		if distance < 2.0:
+			is_grappling = false
+			grapple_line.visible = false
+			velocity = Vector3.ZERO
+			return
+			
+		# --- VISUAL LINE CODE ---
+		grapple_line.rotation = Vector3.ZERO
+		grapple_line.global_position = (start_pos + grapple_target) / 2.0
+		grapple_line.look_at(grapple_target, Vector3.UP)
+		grapple_line.rotate_object_local(Vector3.RIGHT, PI / 2)
+		
+		var cylinder_mesh: CylinderMesh = grapple_line.mesh as CylinderMesh
+		if cylinder_mesh:
+			cylinder_mesh.height = distance
+		# ------------------------
+			
+		var pull_direction = pull_vector.normalized()
+		pull_direction.y *= 0.4 
+		pull_direction = pull_direction.normalized()
+		
+		velocity = pull_direction * grapple_speed
