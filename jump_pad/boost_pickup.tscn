@@ -56,7 +56,7 @@ script = ExtResource("1_g0flh")
 transform = Transform3D(0.36737236, 0.087841004, 0.26252908, 0, 0.4362289, -0.14596014, -0.2768349, 0.11656895, 0.3483879, 0, 0, 0)
 mesh = SubResource("CapsuleMesh_tj7m6")
 
-[node name="Area3D" type="Area3D" parent="." unique_id=564546634]
+[node name="Area3D" type="Area3D" parent="." unique_id=564546634 groups=["player_character"]]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=1097809938]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.027359009, 0.12484741, 0.04626465)
