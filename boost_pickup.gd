@@ -1,6 +1,7 @@
 extends Node3D
 
-@export var pickup_speed = 5
+@export var pickup_speed = 2
+@export var pickup_duration = 10.0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -16,5 +17,5 @@ func _process(delta: float) -> void:
 
 func _on_area_3d_body_entered(body: Node3D) -> void:
 	if body.is_in_group("player_character"):
-		body.speed += pickup_speed
+		body.start_speed_boost(pickup_speed, pickup_duration)
 		queue_free()

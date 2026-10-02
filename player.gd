@@ -4,6 +4,11 @@ extends CharacterBody3D
 @export var speed: float = 5.0
 @export var jump_velocity: float = 4.5
 @export var mouse_sensitivity: float = 0.003 # Fixed sensitivity scale (0.03 was too fast)
+@export var base_speed: float = 5.0
+
+var pickup_speed = 0.0
+var pickup_duration = 0.0
+var pickup_timer = 0.0
 
 #Camera Bobbing
 @export var enable_head_bob: bool = true
@@ -43,7 +48,30 @@ func _physics_process(delta: float) -> void: #Gravity
 		velocity.z = direction.z * speed
 	else:
 		velocity.x = move_toward(velocity.x, 0, speed)
+<<<<<<< Updated upstream
 		velocity.z = move_toward(velocity.z, 0, speed) 
+=======
+		velocity.z = move_toward(velocity.z, 0, speed)
+		 
+	speed_counter.text = "Speed " + str(round(current_speed))
+	
+	#speed boost
+	
+	if pickup_timer > 0:
+		pickup_timer -= delta
+	
+		var boost_percent = pickup_timer / pickup_duration
+		speed = base_speed * (1.0 + pickup_speed * boost_percent)
+	else:
+		speed = base_speed
+	
+	
+	GDScript
+	_process_wall_run(delta)
+	_process_grapple(delta)
+	
+
+>>>>>>> Stashed changes
 	
 	# CRITICAL FIX: Call your wall run logic before moving!
 	_process_wall_run(delta)
@@ -92,3 +120,44 @@ func _process_wall_run(delta: float) -> void:
 	else:
 		is_wall_running = false
 		
+<<<<<<< Updated upstream
+=======
+	if is_grappling:
+		# Shifts the start point forward and to the right so it doesn't block your crosshair
+		var forward_offset = grapple_ray.global_transform.basis.z * -0.5
+		var side_offset = grapple_ray.global_transform.basis.x * 0.4 # Change to -0.4 to move it to the left instead
+		var start_pos = grapple_ray.global_position + forward_offset + side_offset
+		
+		var pull_vector = grapple_target - start_pos
+		var distance = pull_vector.length()
+		
+		# Stop grappling automatically when you arrive at the wall
+		if distance < 2.0:
+			is_grappling = false
+			grapple_line.visible = false
+			velocity = Vector3.ZERO
+			return
+			
+		# --- VISUAL LINE CODE ---
+		grapple_line.rotation = Vector3.ZERO
+		grapple_line.global_position = (start_pos + grapple_target) / 2.0
+		grapple_line.look_at(grapple_target, Vector3.UP)
+		grapple_line.rotate_object_local(Vector3.RIGHT, PI / 2)
+		
+		var cylinder_mesh: CylinderMesh = grapple_line.mesh as CylinderMesh
+		if cylinder_mesh:
+			cylinder_mesh.height = distance
+		# ------------------------
+			
+		var pull_direction = pull_vector.normalized()
+		pull_direction.y *= 0.4 
+		pull_direction = pull_direction.normalized()
+		
+		velocity = pull_direction * grapple_speed
+
+#Speed Boost
+func start_speed_boost(boost, duration):
+	pickup_speed = boost
+	pickup_duration = duration
+	pickup_timer = duration
+>>>>>>> Stashed changes
