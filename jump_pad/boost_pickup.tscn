@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cbno17ejbl6y"]
 
-[ext_resource type="Script" uid="uid://bc1dsa51r8e1u" path="res://boost_pickup.gd" id="1_g0flh"]
+[ext_resource type="Script" uid="uid://bc1dsa51r8e1u" path="res://Pick-ups/boost_pickup.gd" id="1_g0flh"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ttofa"]
 albedo_color = Color(1, 1, 0.03137255, 1)

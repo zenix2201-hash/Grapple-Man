@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cr0i1obdfvlpe"]
 
-[ext_resource type="PackedScene" uid="uid://7w6llavxofx5" path="res://3Dplayer.tscn" id="1_yuu5i"]
+[ext_resource type="PackedScene" uid="uid://7w6llavxofx5" path="res://Player/3Dplayer.tscn" id="1_yuu5i"]
 [ext_resource type="PackedScene" uid="uid://cbno17ejbl6y" path="res://jump_pad/boost_pickup.tscn" id="2_et0ic"]
 [ext_resource type="PackedScene" uid="uid://ce0gkocslorpj" path="res://jump_pad/jump_pad_logic.tscn" id="3_lcjpf"]
 

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://7w6llavxofx5"]
 
-[ext_resource type="Script" uid="uid://crqpmvjlbjpl6" path="res://player.gd" id="1_wac6g"]
+[ext_resource type="Script" uid="uid://crqpmvjlbjpl6" path="res://Player/player.gd" id="1_wac6g"]
 [ext_resource type="Texture2D" uid="uid://c2d07jnupoimo" path="res://assets/crosshair.png" id="2_0eqm3"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_60xd1"]
