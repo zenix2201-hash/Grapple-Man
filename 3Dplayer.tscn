@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://7w6llavxofx5"]
 
 [ext_resource type="Script" uid="uid://crqpmvjlbjpl6" path="res://player.gd" id="1_wac6g"]
+[ext_resource type="Texture2D" uid="uid://c2d07jnupoimo" path="res://assets/crosshair.png" id="2_0eqm3"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_60xd1"]
 
@@ -27,3 +28,24 @@ hit_from_inside = true
 [node name="WallRayRight" type="RayCast3D" parent="." unique_id=706373363]
 target_position = Vector3(4, 0, 0)
 hit_from_inside = true
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=548100637]
+
+[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer" unique_id=253476146]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/CenterContainer" unique_id=988603815]
+layout_mode = 2
+texture = ExtResource("2_0eqm3")
+
+[node name="speed_counter" type="Label" parent="CanvasLayer" unique_id=290056829]
+offset_left = 12.000001
+offset_top = 2.000001
+offset_right = 77.0
+offset_bottom = 25.0
+scale = Vector2(1.85, 1.85)
+text = "Speed: 0"
