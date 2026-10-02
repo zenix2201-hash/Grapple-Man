@@ -20,6 +20,15 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 @export var grapple_speed: float = 35.0
 @onready var grapple_ray: RayCast3D = $CollisionShape3D/head/Camera3D/Grapple_hook
 
+
+#Crouching / sliding
+@export var slide_speed_threshold: float = 7.0 # Must be moving faster than this to slide
+@export var slide_boost: float = 14.0
+
+var is_sliding: bool = false
+var is_crouching: bool = false
+var slide_velocity: Vector3 = Vector3.ZERO
+
 #grapple
 var is_grappling: bool = false
 var grapple_target: Vector3 = Vector3.ZERO
@@ -46,19 +55,70 @@ func _unhandled_input(event: InputEvent) -> void: #mouse look with vertical clam
 	if event.is_action_pressed("ui_cancel"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
+func _process_slide(delta: float) -> void:
+	var floor_speed = Vector2(velocity.x, velocity.z).length()
+	
+	# Check for Crouch/Slide input press
+	if Input.is_action_just_pressed("crouch") and is_on_floor():
+		if not is_sliding and not is_crouching:
+			# If going fast (sprinting/momentum), trigger a slide!
+			if floor_speed >= slide_speed_threshold:
+				var input_dir := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+				var dir := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+				
+				if dir == Vector3.ZERO:
+					slide_velocity = -transform.basis.z * floor_speed
+				else:
+					slide_velocity = dir * max(floor_speed, sprint_speed)
+					
+				slide_velocity = slide_velocity.normalized() * slide_boost
+				is_sliding = true
+			else:
+				# Otherwise, just normal low-speed crouch
+				is_crouching = true
+
+	# Handle exit conditions when letting go of crouch or jumping
+	if is_sliding or is_crouching:
+		if not Input.is_action_pressed("crouch") or not is_on_floor() or Input.is_action_just_pressed("jump"):
+			if is_sliding and Input.is_action_just_pressed("jump") and is_on_floor():
+				# Slide-jump feature: convert slide momentum into an explosive jump
+				velocity = slide_velocity
+				velocity.y = jump_velocity
+				
+			is_sliding = false
+			is_crouching = false
+			return
+
+	# Handle active sliding physics
+	if is_sliding:
+		velocity.x = slide_velocity.x
+		velocity.z = slide_velocity.z
+		
+		# Friction decay over time
+		slide_velocity *= (1.0 - 2.5 * delta)
+		
+		# Stop sliding if speed drops below walk speed threshold
+		if Vector2(slide_velocity.x, slide_velocity.z).length() < walk_speed:
+			is_sliding = false
+			is_crouching = true # Transition smoothly into a normal crouch if holding key
+
 func _physics_process(delta: float) -> void: #Gravity
 	
-	# Handle Sprint Input (switches speed based on shift/sprint key)
-	if Input.is_action_pressed("Sprint") and is_on_floor():
-		speed = sprint_speed
-	else:
-		speed = walk_speed
+	# 1. Handle Slide & Crouch Check
+	_process_slide(delta)
+	
+	# Handle Sprint Input (switches speed based on shift/sprint key) - Bypassed while sliding
+	if not is_sliding:
+		if Input.is_action_pressed("Sprint") and is_on_floor():
+			speed = sprint_speed
+		else:
+			speed = walk_speed
 		
 	var current_speed_h = Vector2(velocity.x, velocity.z).length()
 	var current_speed_v = velocity.y
 	
-	# Standard gravity & jumping (bypassed while grappling so swing physics take over)
-	if not is_grappling:
+	# Standard gravity & jumping (bypassed while grappling or sliding)
+	if not is_grappling and not is_sliding:
 		if not is_on_floor():
 			velocity.y -= gravity * delta 
 		
@@ -67,8 +127,8 @@ func _physics_process(delta: float) -> void: #Gravity
 	
 	var input_dir := Input.get_vector("move_left", "move_right", "move_up", "move_down") 
 	
-	# Standard WASD movement (bypassed while grappling to protect momentum)
-	if not is_grappling:
+	# Standard WASD movement (bypassed while grappling or sliding to protect momentum)
+	if not is_grappling and not is_sliding:
 		var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 
 		if direction:
@@ -80,7 +140,6 @@ func _physics_process(delta: float) -> void: #Gravity
 			
 	speed_counter_h.text = "H Speed " + str(round(current_speed_h))
 	speed_counter_v.text = "V Speed " + str(round(current_speed_v))
-	
 	
 	_process_wall_run(delta)
 	_process_grapple(delta)
