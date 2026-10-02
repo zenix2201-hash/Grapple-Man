@@ -30,12 +30,12 @@ func _unhandled_input(event: InputEvent) -> void: #mouse look with vertical clam
 
 func _physics_process(delta: float) -> void: #Gravity
 	if not is_on_floor():
-		velocity.y -= gravity * delta # FIX 1: Subtract gravity over time instead of setting velocity.y = jump_velocity
+		velocity.y -= gravity * delta 
 	
 	if Input.is_action_just_pressed("jump") and is_on_floor(): #Jump
 		velocity.y = jump_velocity
 	
-	var input_dir := Input.get_vector("move_left", "move_right", "move_up", "move_down") # FIX 2: Fixed input action names ("move_forward", "move_back")
+	var input_dir := Input.get_vector("move_left", "move_right", "move_up", "move_down") 
 	var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
 	if direction:
@@ -43,9 +43,14 @@ func _physics_process(delta: float) -> void: #Gravity
 		velocity.z = direction.z * speed
 	else:
 		velocity.x = move_toward(velocity.x, 0, speed)
-		velocity.z = move_toward(velocity.z, 0, speed) # FIX 3: Target velocity.z instead of velocity.y
+		velocity.z = move_toward(velocity.z, 0, speed) 
+	
+	# CRITICAL FIX: Call your wall run logic before moving!
+	_process_wall_run(delta)
 	
 	move_and_slide()
+	
+	_process_camera_effects(delta, input_dir)
 	
 	_process_camera_effects(delta, input_dir)
 	
@@ -61,3 +66,29 @@ func _process_camera_effects(delta: float, input_dir: Vector2) -> void:
 
 	var target_tilt = -input_dir.x * lean_amount
 	camera.rotation.z = lerp(camera.rotation.z, target_tilt, delta * 10.0)
+	
+	#Wall Running
+@export var wall_run_gravity: float = 2.0
+@export var wall_jump_force: float = 6.0
+
+@onready var wall_ray_left: RayCast3D = $WallRayLeft
+@onready var wall_ray_right: RayCast3D = $WallRayRight
+
+var is_wall_running: bool = false
+
+func _process_wall_run(delta: float) -> void:
+	var on_left: bool = wall_ray_left.is_colliding()
+	var on_right: bool = wall_ray_right.is_colliding()
+	
+	if (on_left or on_right) and not is_on_floor() and velocity.y <0:
+		is_wall_running = true
+		velocity.y = move_toward(velocity.y, -wall_run_gravity, delta * 10.0)
+		
+		if Input.is_action_just_pressed("jump"):
+			var normal = wall_ray_left.get_collision_normal() if on_left else wall_ray_right.get_collision_normal()
+			velocity = (normal + Vector3.UP).normalized() * wall_jump_force
+			is_wall_running = false
+			
+	else:
+		is_wall_running = false
+		
