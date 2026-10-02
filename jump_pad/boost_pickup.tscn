@@ -1,0 +1,69 @@
+[gd_scene format=3 uid="uid://cbno17ejbl6y"]
+
+[ext_resource type="Script" uid="uid://bc1dsa51r8e1u" path="res://boost_pickup.gd" id="1_g0flh"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ttofa"]
+albedo_color = Color(1, 1, 0.03137255, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_tj7m6"]
+material = SubResource("StandardMaterial3D_ttofa")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jrd7o"]
+size = Vector3(1.9588928, 2.0239868, 1.623291)
+
+[sub_resource type="Animation" id="Animation_g0flh"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MeshInstance3D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.3228859, 0.6457718, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_u1gdj"]
+resource_name = "capsule_spin"
+length = 2.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MeshInstance3D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.0009999999, 2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0.3228859, 0, 0), Vector3(0.3228859, 0.6457718, 0), Vector3(0.3228859, 6.2831855, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_3uumq"]
+_data = {
+&"RESET": SubResource("Animation_g0flh"),
+&"capsule_spin": SubResource("Animation_u1gdj")
+}
+
+[node name="Node3D" type="Node3D" unique_id=464833380]
+script = ExtResource("1_g0flh")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=859618033]
+transform = Transform3D(0.36737236, 0.087841004, 0.26252908, 0, 0.4362289, -0.14596014, -0.2768349, 0.11656895, 0.3483879, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_tj7m6")
+
+[node name="Area3D" type="Area3D" parent="." unique_id=564546634]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=1097809938]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.027359009, 0.12484741, 0.04626465)
+shape = SubResource("BoxShape3D_jrd7o")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=808707473]
+libraries/ = SubResource("AnimationLibrary_3uumq")
+autoplay = &"capsule_spin"
+
+[connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]
