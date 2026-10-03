@@ -1,6 +1,14 @@
 [gd_scene format=3 uid="uid://cbno17ejbl6y"]
 
+<<<<<<< Updated upstream
 [ext_resource type="Script" uid="uid://bc1dsa51r8e1u" path="res://boost_pickup.gd" id="1_g0flh"]
+=======
+[ext_resource type="Script" uid="uid://bc1dsa51r8e1u" path="res://Pick-ups/boost_pickup.gd" id="1_g0flh"]
+[ext_resource type="Texture2D" uid="uid://dtlb2qvwx1gli" path="res://assets/HRBg1H0WEAAdscq.webp" id="2_u1gdj"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3uumq"]
+albedo_texture = ExtResource("2_u1gdj")
+>>>>>>> Stashed changes
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ttofa"]
 albedo_color = Color(1, 1, 0.03137255, 1)
@@ -54,6 +62,7 @@ script = ExtResource("1_g0flh")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=859618033]
 transform = Transform3D(0.36737236, 0.087841004, 0.26252908, 0, 0.4362289, -0.14596014, -0.2768349, 0.11656895, 0.3483879, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_3uumq")
 mesh = SubResource("CapsuleMesh_tj7m6")
 
 [node name="Area3D" type="Area3D" parent="." unique_id=564546634 groups=["player_character"]]

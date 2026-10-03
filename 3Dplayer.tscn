@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://crqpmvjlbjpl6" path="res://player.gd" id="1_wac6g"]
 [ext_resource type="Texture2D" uid="uid://c2d07jnupoimo" path="res://assets/crosshair.png" id="2_0eqm3"]
+[ext_resource type="Script" uid="uid://bcsyurjbmpybq" path="res://Weapon Systems/WeaponManager.gd" id="2_nu38m"]
+[ext_resource type="PackedScene" uid="uid://dh301jdhke2xt" path="res://Weapon Systems/Shotgun/shotgun2.tscn" id="3_jgyil"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_60xd1"]
 
@@ -18,6 +20,21 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 
 [node name="Camera3D" type="Camera3D" parent="CollisionShape3D/head" unique_id=685629977]
 
+<<<<<<< Updated upstream:3Dplayer.tscn
+=======
+[node name="Grapple_hook" type="RayCast3D" parent="CollisionShape3D/head/Camera3D" unique_id=1396003660]
+target_position = Vector3(0, 0, -60)
+
+[node name="Grapple_Line" type="MeshInstance3D" parent="CollisionShape3D/head/Camera3D" unique_id=794467500]
+mesh = SubResource("CylinderMesh_fpyuh")
+
+[node name="Weapon_manager" type="Node3D" parent="CollisionShape3D/head/Camera3D" unique_id=1461179]
+script = ExtResource("2_nu38m")
+
+[node name="Shotgun" parent="CollisionShape3D/head/Camera3D/Weapon_manager" unique_id=267345373 instance=ExtResource("3_jgyil")]
+transform = Transform3D(0.21, 0, 0, 0, 0.21, 0, 0, 0, 0.21, 0.42163193, -0.27513337, -0.45835894)
+
+>>>>>>> Stashed changes:Player/3Dplayer.tscn
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2133795594]
 mesh = SubResource("CapsuleMesh_fpyuh")
 
