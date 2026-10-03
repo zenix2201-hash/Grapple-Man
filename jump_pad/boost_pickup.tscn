@@ -49,7 +49,7 @@ _data = {
 &"capsule_spin": SubResource("Animation_u1gdj")
 }
 
-[node name="Node3D" type="Node3D" unique_id=464833380]
+[node name="BoostPickup" type="Node3D" unique_id=464833380]
 script = ExtResource("1_g0flh")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=859618033]
