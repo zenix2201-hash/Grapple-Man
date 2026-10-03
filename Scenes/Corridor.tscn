@@ -64,3 +64,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.9425755, 1.0118449, -51.13
 
 [node name="jump_pad" parent="." unique_id=599665179 instance=ExtResource("3_lcjpf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.838678, 0.75263405, -52.88509)
+
+[node name="Node3D2" parent="." unique_id=1238585576 instance=ExtResource("2_et0ic")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.0583906, 1.0118449, -48.528713)
