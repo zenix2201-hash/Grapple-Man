@@ -1,0 +1,125 @@
+[gd_scene format=3 uid="uid://dh301jdhke2xt"]
+
+[ext_resource type="Script" uid="uid://c8d12mypax86" path="res://Weapon Systems/Shotgun/ShotgunScript.gd" id="1_d47vd"]
+[ext_resource type="PackedScene" uid="uid://jfm7fsx7i0v6" path="res://Weapon Systems/Shotgun/shotgun_shrapnel.tscn" id="2_j7tcf"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_otf1h"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_tj7m6"]
+material = SubResource("StandardMaterial3D_otf1h")
+height = 4.1679688
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dhhnc"]
+albedo_color = Color(0.32915837, 0.3291584, 0.3291584, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_tj7m6"]
+material = SubResource("StandardMaterial3D_dhhnc")
+size = Vector3(0.7508545, 1.9053955, 0.76446533)
+
+[sub_resource type="PrismMesh" id="PrismMesh_ttofa"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_jrd7o"]
+height = 3.2851563
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_ttofa"]
+height = 3.4550781
+
+[sub_resource type="Animation" id="Animation_d47vd"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = false
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_j7tcf"]
+resource_name = "reload"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = false
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.100000024, 0.2, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, -0.5332518, -0.550416), Vector3(0, 0, 0), Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.110000014, 0.2, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(3.1415927, 0, 0), Vector3(6.2831855, 0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_0o2oe"]
+_data = {
+&"RESET": SubResource("Animation_d47vd"),
+&"reload": SubResource("Animation_j7tcf")
+}
+
+[node name="Shotgun" type="Node3D" unique_id=267345373]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
+script = ExtResource("1_d47vd")
+shrapnel = ExtResource("2_j7tcf")
+shrapnel_count = 10
+shrapnel_spread = 7.0
+weapon_name = "Shotgun"
+fire_rate = 1.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2117039765]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0.6692325, -4.738246e-08, -2.4893293)
+mesh = SubResource("CylinderMesh_tj7m6")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=778061993]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06842041, -0.45269775, -0.7770432)
+mesh = SubResource("BoxMesh_tj7m6")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="." unique_id=2058885714]
+transform = Transform3D(-0.05541777, 5.265994e-09, 0.68212056, 0.98357, 0.24981567, 0.03603454, -0.25375697, 0.9682935, -0.009296763, 0, -0.22833705, -1.1012204)
+mesh = SubResource("PrismMesh_ttofa")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="." unique_id=637174365]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, -8.419991e-08, -2.8160503)
+mesh = SubResource("CylinderMesh_jrd7o")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="." unique_id=1132957249]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0.3560509, 0.47525492, -2.823097)
+mesh = SubResource("CylinderMesh_ttofa")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="." unique_id=610051951]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0.3560509, -0.78498703, -2.8078449)
+mesh = SubResource("CylinderMesh_ttofa")
+
+[node name="Muzzle" type="Marker3D" parent="." unique_id=1359796750]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0.3853532, 0, -5.581004)
+
+[node name="Reloading" type="AnimationPlayer" parent="." unique_id=880329454]
+libraries/ = SubResource("AnimationLibrary_0o2oe")
