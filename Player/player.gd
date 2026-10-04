@@ -38,7 +38,7 @@ var grapple_target: Vector3 = Vector3.ZERO
 
 #Sprint
 @export var walk_speed: float = 5.0
-@export var sprint_speed: float = 9.8
+@export var sprint_speed: float = 9.7
 
 #Speed Counter
 @onready var speed_counter_h = $CanvasLayer/speed_counter
