@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Weapon Systems/Revolver/revolver.gd" id="1_rev"]
+
+[node name="Revolver" type="Node3D"]
+script = ExtResource("1_rev")
+weapon_name = "PEACEMAKER"
+damage = 22.0
+fire_rate = 0.38
+recoil = 0.25

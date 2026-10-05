@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://dh301jdhke2xt"]
 
 [ext_resource type="Script" uid="uid://c8d12mypax86" path="res://Weapon Systems/Shotgun/ShotgunScript.gd" id="1_d47vd"]
-[ext_resource type="PackedScene" uid="uid://jfm7fsx7i0v6" path="res://Weapon Systems/Shotgun/shotgun_shrapnel.tscn" id="2_j7tcf"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_otf1h"]
 
@@ -88,11 +87,12 @@ _data = {
 [node name="Shotgun" type="Node3D" unique_id=267345373]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
 script = ExtResource("1_d47vd")
-shrapnel = ExtResource("2_j7tcf")
 shrapnel_count = 10
 shrapnel_spread = 7.0
-weapon_name = "Shotgun"
-fire_rate = 1.0
+weapon_name = "SCATTERGUN"
+damage = 9.0
+fire_rate = 0.85
+recoil = 0.35
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2117039765]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0.6692325, -4.738246e-08, -2.4893293)
