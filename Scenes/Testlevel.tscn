@@ -3,6 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://7w6llavxofx5" path="res://Player/3Dplayer.tscn" id="1_tp4to"]
 [ext_resource type="PackedScene" uid="uid://ce0gkocslorpj" path="res://jump_pad/jump_pad_logic.tscn" id="2_vgkgg"]
 [ext_resource type="PackedScene" uid="uid://cbno17ejbl6y" path="res://jump_pad/boost_pickup.tscn" id="3_7vbj4"]
+[ext_resource type="PackedScene" uid="uid://bun2aek7gpq84" path="res://Scenes/grapplepoint.tscn" id="4_fm6ny"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s1fef"]
 albedo_color = Color(0.61960787, 1, 1, 1)
@@ -41,6 +42,12 @@ albedo_color = Color(8.774091e-05, 8.774091e-05, 8.774091e-05, 1)
 
 [sub_resource type="PrismMesh" id="PrismMesh_s1fef"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fm6ny"]
+albedo_color = Color(0.42745098, 1, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v8d4j"]
+albedo_color = Color(0.039215688, 1, 0, 1)
+
 [node name="Node3D" type="Node3D" unique_id=1290370400]
 
 [node name="Player" parent="." unique_id=643253925 instance=ExtResource("1_tp4to")]
@@ -61,9 +68,10 @@ size = Vector3(128, 51.5, 1)
 
 [node name="OmniLight3D" type="OmniLight3D" parent="Node/Wall 1" unique_id=1785755795]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2676305e-06, 0, -29)
-light_energy = 13.039
-light_indirect_energy = 1.12
+light_energy = 5.155
+light_indirect_energy = 3.735
 light_volumetric_fog_energy = 0.375
+light_size = 0.235
 light_specular = 0.0
 
 [node name="Wall 2" type="CSGBox3D" parent="Node" unique_id=1531316988]
@@ -109,12 +117,6 @@ material = SubResource("StandardMaterial3D_7vbj4")
 
 [node name="Wall 12" type="CSGBox3D" parent="Node" unique_id=813101541]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 185, 17.5, -53.5)
-use_collision = true
-size = Vector3(27, 9, 1)
-material = SubResource("StandardMaterial3D_7vbj4")
-
-[node name="Wall 13" type="CSGBox3D" parent="Node" unique_id=165528035]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 203.5, 24, -45.5)
 use_collision = true
 size = Vector3(27, 9, 1)
 material = SubResource("StandardMaterial3D_7vbj4")
@@ -173,9 +175,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 11.5, -39)
 [node name="BoostPickup4" parent="Node/jump_pad" unique_id=1928026404 instance=ExtResource("3_7vbj4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 17.5, -45.5)
 
-[node name="BoostPickup5" parent="Node/jump_pad" unique_id=637406067 instance=ExtResource("3_7vbj4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.5, 23, -39.5)
-
 [node name="BoostPickup6" parent="Node/jump_pad" unique_id=1383068484 instance=ExtResource("3_7vbj4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.5, 18)
 
@@ -223,9 +222,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 11.5, -39)
 [node name="BoostPickup4" parent="Node/jump_pad8" unique_id=1424811806 instance=ExtResource("3_7vbj4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 17.5, -45.5)
 
-[node name="BoostPickup5" parent="Node/jump_pad8" unique_id=673529847 instance=ExtResource("3_7vbj4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.5, 23, -39.5)
-
 [node name="BoostPickup6" parent="Node/jump_pad8" unique_id=1211058677 instance=ExtResource("3_7vbj4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.5, 18)
 
@@ -272,9 +268,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 11.5, -39)
 
 [node name="BoostPickup4" parent="Node/jump_pad9" unique_id=1719079176 instance=ExtResource("3_7vbj4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 17.5, -45.5)
-
-[node name="BoostPickup5" parent="Node/jump_pad9" unique_id=91664423 instance=ExtResource("3_7vbj4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.5, 23, -39.5)
 
 [node name="BoostPickup6" parent="Node/jump_pad9" unique_id=1541294967 instance=ExtResource("3_7vbj4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.5, 18)
@@ -444,3 +437,19 @@ mesh = SubResource("PrismMesh_s1fef")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="." unique_id=2107343228]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 110, 0, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=954947452]
+transform = Transform3D(-0.73069125, 0.32355693, 0.6011665, 0.32494235, -0.6096003, 0.72304916, 0.6004188, 0.72367007, 0.34029227, 193.551, 128.0842, -3.150776)
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="DirectionalLight3D" unique_id=611374204]
+transform = Transform3D(1, 8.940697e-08, -2.9802322e-08, 0, 1.0000002, -2.9802322e-08, 4.4703484e-08, -1.6391277e-07, 1.0000001, 13.891975, 76.12069, -14.963043)
+use_collision = true
+material = SubResource("StandardMaterial3D_fm6ny")
+
+[node name="CSGSphere3D3" parent="DirectionalLight3D" unique_id=1206970455 instance=ExtResource("4_fm6ny")]
+transform = Transform3D(1, 7.327472e-15, -4.470349e-08, 0, 1.0000002, 1.6391274e-07, 4.4703484e-08, -1.6391277e-07, 1.0000001, 14.508682, 74.96374, -13.590775)
+
+[node name="CSGSphere3D2" type="CSGSphere3D" parent="DirectionalLight3D" unique_id=58097655]
+transform = Transform3D(1, 8.940697e-08, -2.9802322e-08, 0, 1.0000002, -2.9802322e-08, 4.4703484e-08, -1.6391277e-07, 1.0000001, 27.73645, 78.91861, -45.340637)
+use_collision = true
+material = SubResource("StandardMaterial3D_v8d4j")

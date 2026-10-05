@@ -28,6 +28,7 @@ window/stretch/aspect="expand"
 [global_group]
 
 player_character=""
+"Grapple point"=""
 
 [input]
 
