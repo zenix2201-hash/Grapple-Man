@@ -441,7 +441,6 @@ mesh = SubResource("PrismMesh_s1fef")
 [node name="CSGBox3D" type="CSGBox3D" parent="." unique_id=2107343228]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 110, 0, 0)
 
-<<<<<<< HEAD
 [node name="Buzzard" parent="." unique_id=372830223 instance=ExtResource("4_i4bxf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 255, 13.35214, 24.08874)
 
@@ -450,7 +449,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 255.00002, 6.8576536, -10.891
 
 [node name="Hound" parent="." unique_id=1997857926 instance=ExtResource("6_rt1uc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 189.96683, 1, 32.31584)
-=======
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=954947452]
 transform = Transform3D(-0.73069125, 0.32355693, 0.6011665, 0.32494235, -0.6096003, 0.72304916, 0.6004188, 0.72367007, 0.34029227, 193.551, 128.0842, -3.150776)
 
@@ -466,4 +464,3 @@ transform = Transform3D(1, 7.327472e-15, -4.470349e-08, 0, 1.0000002, 1.6391274e
 transform = Transform3D(1, 8.940697e-08, -2.9802322e-08, 0, 1.0000002, -2.9802322e-08, 4.4703484e-08, -1.6391277e-07, 1.0000001, 27.73645, 78.91861, -45.340637)
 use_collision = true
 material = SubResource("StandardMaterial3D_v8d4j")
-0fa2e1f08a14cb3a31c011d1fe6441a48de56054
