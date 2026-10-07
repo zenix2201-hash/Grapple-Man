@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://7w6llavxofx5" path="res://Player/3Dplayer.tscn" id="1_tp4to"]
 [ext_resource type="PackedScene" uid="uid://ce0gkocslorpj" path="res://jump_pad/jump_pad_logic.tscn" id="2_vgkgg"]
 [ext_resource type="PackedScene" uid="uid://cbno17ejbl6y" path="res://jump_pad/boost_pickup.tscn" id="3_7vbj4"]
-<<<<<<< HEAD
+HEAD
 [ext_resource type="PackedScene" path="res://Enemies/buzzard.tscn" id="4_i4bxf"]
 [ext_resource type="PackedScene" path="res://Enemies/deadeye.tscn" id="5_ilr6r"]
 [ext_resource type="PackedScene" path="res://Enemies/hound.tscn" id="6_rt1uc"]
