@@ -65,20 +65,23 @@ var dash_dir: Vector3 = Vector3.ZERO
 
 # --- GRAPPLE ---
 @export_group("Grapple")
-@export var grapple_group: String = "Grapple point" ## Only nodes in this group can be lassoed
-@export var grapple_aim_angle: float = 15.0 ## How far (degrees) from the crosshair a point can be and still get picked
+@export var grapple_group: String = "Grapple point" 
+@export var grapple_aim_angle: float = 15.0 
 @export var grapple_speed: float = 35.0 ## Speed of the pull grapple
-@export var max_grapple_launch_speed: float = 28.0 # Safety clamp for jump-to-zip
+@export var max_grapple_launch_speed: float = 28.0 
 @export var rope_reel_speed: float = 3.0 ## Rope slowly shortens so swings gain height
 @export var swing_gravity_mult: float = 1.5
 @onready var grapple_ray: RayCast3D = $Head/Camera3D/GrappleRay
 @onready var grapple_line: MeshInstance3D = $GrappleLine
 var is_grappling: bool = false
 var grapple_target: Vector3 = Vector3.ZERO
-var grapple_point: Node3D = null ## The point we're hooked onto
-var grapple_aimed: Node3D = null ## The point the crosshair is currently picking
-var grapple_pulling: bool = false ## true = pull mode, false = swing mode
+var grapple_point: Node3D = null 
+var grapple_aimed: Node3D = null 
+var grapple_pulling: bool = false 
 var grapple_in_range: bool = false
+var grapple_aimed_offset: Vector3 = Vector3.ZERO 
+var grapple_offset: Vector3 = Vector3.ZERO
+var pull_timer: float = 0.0
 var rope_length: float = 0.0
 var grapple_cooldown: float = 0.0
 
@@ -551,9 +554,11 @@ func _process_grapple(delta: float) -> void:
 	if not is_instance_valid(grapple_point):
 		_end_grapple()
 		return
-	grapple_target = grapple_point.global_position
+	grapple_target = grapple_point.to_global(grapple_offset)
 
-	var held_action := "grapple_pull" if grapple_pulling else "grapple"
+	if not grapple_pulling and Input.is_action_just_pressed("grapple_pull"):
+		_begin_pull()
+
 	if jump_buffer > 0.0:
 		jump_buffer = 0.0
 		var target_dir: Vector3 = (grapple_target - global_position).normalized()
@@ -563,7 +568,7 @@ func _process_grapple(delta: float) -> void:
 			velocity = velocity.normalized() * max_grapple_launch_speed
 		_end_grapple()
 		return
-	if not Input.is_action_pressed(held_action):
+	if not grapple_pulling and not Input.is_action_pressed("grapple"):
 		_end_grapple()
 		return
 
@@ -574,8 +579,9 @@ func _process_grapple(delta: float) -> void:
 	var dir_to_target := to_target / maxf(current_distance, 0.001)
 
 	if grapple_pulling:
-		velocity = velocity.lerp(dir_to_target * grapple_speed, minf(6.0 * delta, 1.0))
-		if current_distance < 3.0:
+		pull_timer -= delta
+		velocity = velocity.lerp(dir_to_target * grapple_speed, minf(8.0 * delta, 1.0))
+		if current_distance < 3.0 or pull_timer <= 0.0:
 			velocity.y = maxf(velocity.y, jump_velocity * 0.8)
 			_end_grapple()
 		return
@@ -590,12 +596,21 @@ func _process_grapple(delta: float) -> void:
 	if current_distance > rope_length:
 		var radial_velocity := velocity.dot(dir_to_target)
 		if radial_velocity < 0:
-			velocity -= dir_to_target * radial_velocity 
+			velocity -= dir_to_target * radial_velocity
 		velocity += dir_to_target * (current_distance - rope_length) * 45.0 * delta
 
 	velocity.y = minf(velocity.y, 18.0)
-	velocity.x *= 0.999 
+	velocity.x *= 0.999
 	velocity.z *= 0.999
+
+func _begin_pull() -> void:
+	grapple_pulling = true
+	var to_target: Vector3 = grapple_target - global_position
+	pull_timer = to_target.length() / maxf(grapple_speed, 1.0) + 0.75
+	velocity += to_target.normalized() * grapple_speed * 0.4
+	Sfx.play("grapple", -4.0, 1.3)
+
+
 
 
 func _find_grapple_point() -> Node3D:
@@ -603,6 +618,16 @@ func _find_grapple_point() -> Node3D:
 	var forward: Vector3 = -camera.global_transform.basis.z
 	var max_range: float = GameState.stat("grapple_range")
 	var space := get_world_3d().direct_space_state
+
+	var aim_q := PhysicsRayQueryParameters3D.create(cam_pos, cam_pos + forward * max_range, Layers.WORLD_MASK)
+	var aim_hit := space.intersect_ray(aim_q)
+	if not aim_hit.is_empty():
+		var aimed: Node3D = _grapple_point_for(aim_hit["collider"])
+		if aimed != null:
+			grapple_aimed_offset = aimed.to_local(aim_hit["position"])
+			return aimed
+
+	# 2. Otherwise pick the point nearest the crosshair, within grapple_aim_angle.
 	var best: Node3D = null
 	var best_score := INF
 	for node in get_tree().get_nodes_in_group(grapple_group):
@@ -616,33 +641,46 @@ func _find_grapple_point() -> Node3D:
 		var angle: float = rad_to_deg(forward.angle_to(to_point))
 		if angle > grapple_aim_angle:
 			continue
+		var attach: Vector3 = point.global_position
 		var q := PhysicsRayQueryParameters3D.create(cam_pos, point.global_position, Layers.WORLD_MASK)
 		var hit := space.intersect_ray(q)
 		if not hit.is_empty():
 			var hit_pos: Vector3 = hit["position"]
-			if hit_pos.distance_to(point.global_position) > 2.0:
+			if _grapple_point_for(hit["collider"]) != point and hit_pos.distance_to(point.global_position) > 2.0:
 				continue
-		# Mostly prefer what's nearest the crosshair, slightly prefer closer points.
+			attach = hit_pos
 		var score: float = angle + dist * 0.05
 		if score < best_score:
 			best_score = score
 			best = point
+			grapple_aimed_offset = point.to_local(attach)
 	return best
+
+
+func _grapple_point_for(collider: Object) -> Node3D:
+	var node := collider as Node
+	while node != null:
+		if node is Node3D and node.is_in_group(grapple_group):
+			return node as Node3D
+		node = node.get_parent()
+	return null
 
 
 func _start_grapple(point: Node3D, pull: bool) -> void:
 	Sfx.play("grapple", -4.0)
 	grapple_point = point
-	grapple_pulling = pull
-	grapple_target = point.global_position
+	grapple_offset = grapple_aimed_offset
+	grapple_pulling = false
+	grapple_target = point.to_global(grapple_offset)
 	rope_length = global_position.distance_to(grapple_target)
 	is_grappling = true
 	is_sliding = false
 	is_crouching = false
 	is_slamming = false
 	grapple_line.visible = true
+	if pull:
+		_begin_pull()
 	_update_rope_visual()
-
 
 func _end_grapple() -> void:
 	is_grappling = false

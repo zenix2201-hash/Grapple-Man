@@ -3,10 +3,10 @@
 [ext_resource type="PackedScene" uid="uid://7w6llavxofx5" path="res://Player/3Dplayer.tscn" id="1_tp4to"]
 [ext_resource type="PackedScene" uid="uid://ce0gkocslorpj" path="res://jump_pad/jump_pad_logic.tscn" id="2_vgkgg"]
 [ext_resource type="PackedScene" uid="uid://cbno17ejbl6y" path="res://jump_pad/boost_pickup.tscn" id="3_7vbj4"]
+[ext_resource type="PackedScene" uid="uid://bun2aek7gpq84" path="res://Scenes/grapplepoint.tscn" id="4_fm6ny"]
 [ext_resource type="PackedScene" path="res://Enemies/buzzard.tscn" id="4_i4bxf"]
 [ext_resource type="PackedScene" path="res://Enemies/deadeye.tscn" id="5_ilr6r"]
 [ext_resource type="PackedScene" path="res://Enemies/hound.tscn" id="6_rt1uc"]
-[ext_resource type="PackedScene" uid="uid://bun2aek7gpq84" path="res://Scenes/grapplepoint.tscn" id="4_fm6ny"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s1fef"]
 albedo_color = Color(0.61960787, 1, 1, 1)
@@ -449,10 +449,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 255.00002, 6.8576536, -10.891
 
 [node name="Hound" parent="." unique_id=1997857926 instance=ExtResource("6_rt1uc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 189.96683, 1, 32.31584)
+
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=954947452]
 transform = Transform3D(-0.73069125, 0.32355693, 0.6011665, 0.32494235, -0.6096003, 0.72304916, 0.6004188, 0.72367007, 0.34029227, 193.551, 128.0842, -3.150776)
 
-[node name="CSGSphere3D" type="CSGSphere3D" parent="DirectionalLight3D" unique_id=611374204]
+[node name="CSGSphere3D" type="CSGSphere3D" parent="DirectionalLight3D" unique_id=611374204 groups=["Grapple point"]]
 transform = Transform3D(1, 8.940697e-08, -2.9802322e-08, 0, 1.0000002, -2.9802322e-08, 4.4703484e-08, -1.6391277e-07, 1.0000001, 13.891975, 76.12069, -14.963043)
 use_collision = true
 material = SubResource("StandardMaterial3D_fm6ny")
@@ -460,7 +461,7 @@ material = SubResource("StandardMaterial3D_fm6ny")
 [node name="CSGSphere3D3" parent="DirectionalLight3D" unique_id=1206970455 instance=ExtResource("4_fm6ny")]
 transform = Transform3D(1, 7.327472e-15, -4.470349e-08, 0, 1.0000002, 1.6391274e-07, 4.4703484e-08, -1.6391277e-07, 1.0000001, 14.508682, 74.96374, -13.590775)
 
-[node name="CSGSphere3D2" type="CSGSphere3D" parent="DirectionalLight3D" unique_id=58097655]
+[node name="CSGSphere3D2" type="CSGSphere3D" parent="DirectionalLight3D" unique_id=58097655 groups=["Grapple point"]]
 transform = Transform3D(1, 8.940697e-08, -2.9802322e-08, 0, 1.0000002, -2.9802322e-08, 4.4703484e-08, -1.6391277e-07, 1.0000001, 27.73645, 78.91861, -45.340637)
 use_collision = true
 material = SubResource("StandardMaterial3D_v8d4j")
