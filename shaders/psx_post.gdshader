@@ -3,8 +3,8 @@ shader_type canvas_item;
 
 uniform sampler2D screen_tex : hint_screen_texture, filter_nearest;
 uniform float pixel_size = 3.0;
-uniform float color_depth = 24.0;
-uniform float dither_strength = 1.0;
+uniform float color_depth = 32.0;
+uniform float dither_strength = 0.5;
 
 void fragment() {
 	float px = max(pixel_size, 1.0);

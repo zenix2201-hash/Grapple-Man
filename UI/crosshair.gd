@@ -1,6 +1,4 @@
 extends Control
-## Crosshair with Ultrakill-style health (left arc) and dash (right arc)
-## readouts, a lasso range ring and hit markers.
 
 const TEX: Texture2D = preload("res://assets/crosshair.png")
 

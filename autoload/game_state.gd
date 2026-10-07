@@ -1,6 +1,5 @@
 extends Node
-## Autoload "GameState": run progress (floor, scrap, equipped parts), the
-## style meter, player stats and saved settings.
+## Autoload "GameState": run progress (floor, scrap, equipped parts)
 
 signal style_event(label: String, points: int)
 signal rank_changed(rank: int)
@@ -22,7 +21,7 @@ const BASE_STATS := {
 	"dash_charges": 3.0,
 	"dash_regen": 1.0,
 	"air_jumps": 0.0,
-	"grapple_range": 45.0,
+	"grapple_range": 70.0,
 	"slide_mult": 1.0,
 	"heal_mult": 1.0,
 	"crit_chance": 0.0,
@@ -45,7 +44,7 @@ const RANKS := [
 var settings := {
 	"mouse_sensitivity": 0.003,
 	"psx_filter": true,
-	"pixel_size": 3.0,
+	"pixel_size": 2.0,
 	"volume": 0.8,
 	"psx_auto_convert": true,
 }

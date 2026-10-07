@@ -1,9 +1,5 @@
 class_name Player
 extends CharacterBody3D
-## Robot cowboy controller. Fast, momentum-based movement: sprint, slide,
-## dash, ground slam (+ slam bounce), wall run, mantle and a grapple that
-## swings off walls, zips you to heavy enemies and yanks light ones to you.
-## Also handles health, punching and parrying projectiles.
 
 signal health_changed(current: float, maximum: float)
 signal hurt(amount: float)
@@ -15,8 +11,7 @@ const HUD_SCENE: PackedScene = preload("res://UI/hud.tscn")
 
 # --- MOVEMENT & HITBOX SETTINGS ---
 @export_group("Movement")
-@export var walk_speed: float = 8.0
-@export var sprint_speed: float = 13.0
+@export var walk_speed: float = 12.0 ## Base run speed (there's no sprint button)
 @export var jump_velocity: float = 7.5
 @export var gravity_scale: float = 1.6
 @export var fall_gravity_mult: float = 1.3 ## Extra gravity when falling, for a snappier arc
@@ -29,7 +24,7 @@ const HUD_SCENE: PackedScene = preload("res://UI/hud.tscn")
 @export var jump_buffer_time: float = 0.12
 @export var stand_height: float = 2.0
 @export var crouch_height: float = 1.0
-var speed: float = 8.0
+var speed: float = 12.0
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 # --- CAMERA & LOOK ---
@@ -70,7 +65,9 @@ var dash_dir: Vector3 = Vector3.ZERO
 
 # --- GRAPPLE ---
 @export_group("Grapple")
-@export var grapple_speed: float = 35.0 ## Zip speed when lassoing a heavy enemy
+@export var grapple_group: String = "Grapple point" ## Only nodes in this group can be lassoed
+@export var grapple_aim_angle: float = 15.0 ## How far (degrees) from the crosshair a point can be and still get picked
+@export var grapple_speed: float = 35.0 ## Speed of the pull grapple
 @export var max_grapple_launch_speed: float = 28.0 # Safety clamp for jump-to-zip
 @export var rope_reel_speed: float = 3.0 ## Rope slowly shortens so swings gain height
 @export var swing_gravity_mult: float = 1.5
@@ -78,7 +75,9 @@ var dash_dir: Vector3 = Vector3.ZERO
 @onready var grapple_line: MeshInstance3D = $GrappleLine
 var is_grappling: bool = false
 var grapple_target: Vector3 = Vector3.ZERO
-var grapple_enemy: Enemy = null
+var grapple_point: Node3D = null ## The point we're hooked onto
+var grapple_aimed: Node3D = null ## The point the crosshair is currently picking
+var grapple_pulling: bool = false ## true = pull mode, false = swing mode
 var grapple_in_range: bool = false
 var rope_length: float = 0.0
 var grapple_cooldown: float = 0.0
@@ -103,6 +102,14 @@ var is_mantling: bool = false
 var mantle_timer: float = 0.0
 var mantle_dir: Vector3 = Vector3.ZERO
 
+# --- GRENADE ---
+@export_group("Grenade")
+@export var grenade_cooldown: float = 5.0
+@export var grenade_damage: float = 60.0
+@export var grenade_radius: float = 5.0
+@export var grenade_throw_speed: float = 24.0
+var grenade_timer: float = 0.0
+
 # --- COMBAT ---
 @export_group("Combat")
 @export var punch_damage: float = 20.0
@@ -115,6 +122,7 @@ var iframes: float = 0.0
 var punch_timer: float = 0.0
 
 # --- INPUT STATE ---
+var fov_zoom: float = 1.0 ## Set by weapons that zoom (the rifle's alt-fire)
 var input_dir: Vector2 = Vector2.ZERO
 var wish_dir: Vector3 = Vector3.ZERO
 var jump_buffer: float = 0.0
@@ -207,15 +215,15 @@ func _physics_process(delta: float) -> void:
 	_process_mantle(delta, on_floor)
 	_process_grapple(delta)
 	_process_punch()
+	_process_grenade()
 
-	# 2. Sprint Handling
+	# 2. Run speed
 	if not is_sliding:
-		var base := sprint_speed if Input.is_action_pressed("Sprint") else walk_speed
-		speed = base * GameState.stat("speed_mult") + boost_speed
+		speed = walk_speed * GameState.stat("speed_mult") + boost_speed
 
 	# 3. Main Velocity Processing
 	if is_dashing or is_mantling or is_wall_running or is_slamming or is_grappling:
-		pass # Velocity is fully controlled by their respective functions this frame
+		pass 
 	elif is_sliding:
 		if not on_floor:
 			_apply_gravity(delta)
@@ -253,6 +261,7 @@ func _tick_timers(delta: float, on_floor: bool) -> void:
 	slam_bounce_timer = maxf(slam_bounce_timer - delta, 0.0)
 	punch_timer = maxf(punch_timer - delta, 0.0)
 	grapple_cooldown = maxf(grapple_cooldown - delta, 0.0)
+	grenade_timer = maxf(grenade_timer - delta, 0.0)
 	boost_speed = move_toward(boost_speed, 0.0, 2.0 * delta)
 	if not is_dashing:
 		dash_charges = minf(dash_charges + dash_regen * GameState.stat("dash_regen") * delta, GameState.stat("dash_charges"))
@@ -269,8 +278,6 @@ func _ground_move(delta: float) -> void:
 	var h := Vector3(velocity.x, 0.0, velocity.z)
 	if wish_dir != Vector3.ZERO:
 		if h.length() > speed + 0.1:
-			# Moving faster than we could run (slide-jump, dash, explosion):
-			# keep the momentum, steer it, and only bleed it off slowly.
 			var new_len := move_toward(h.length(), speed, overspeed_friction * delta)
 			h = h.lerp(wish_dir * h.length(), minf(6.0 * delta, 1.0)).normalized() * new_len
 		else:
@@ -300,7 +307,6 @@ func _try_jump(on_floor: bool) -> void:
 		jump_buffer = 0.0
 		coyote_timer = 0.0
 		if slam_bounce_timer > 0.0:
-			# Slam bounce: jump right after a slam lands to convert the fall into height.
 			velocity.y = jump_velocity + slam_bounce_power
 			slam_bounce_timer = 0.0
 			Sfx.play("jump", -4.0, 0.7)
@@ -335,7 +341,8 @@ func _after_move(was_on_floor: bool, pre_velocity: Vector3) -> void:
 # --- SUBSYSTEMS ---
 
 func _update_grapple_ui() -> void:
-	grapple_in_range = grapple_ray.is_colliding() and grapple_cooldown <= 0.0
+	grapple_aimed = null if is_grappling else _find_grapple_point()
+	grapple_in_range = grapple_aimed != null and grapple_cooldown <= 0.0
 
 
 func _process_hitbox(delta: float) -> void:
@@ -346,7 +353,6 @@ func _process_hitbox(delta: float) -> void:
 	if target_height > capsule.height and _ceiling_blocked():
 		target_height = capsule.height # can't stand up under a low ceiling
 	capsule.height = lerpf(capsule.height, target_height, minf(delta * 12.0, 1.0))
-	# Shrink from the top so our feet stay on the ground.
 	collision_shape.position.y = -(stand_height - capsule.height) * 0.5
 	head.position.y = lerpf(head.position.y, collision_shape.position.y + capsule.height * 0.5 - 0.3, minf(delta * 12.0, 1.0))
 
@@ -427,7 +433,6 @@ func _process_slide(delta: float, on_floor: bool) -> void:
 	var floor_speed := Vector2(velocity.x, velocity.z).length()
 	var holding := Input.is_action_pressed("crouch")
 
-	# Start on press, or when landing with crouch already held (chains slams into slides).
 	if on_floor and holding and not is_sliding and not is_crouching and not is_slamming and not is_dashing \
 			and (Input.is_action_just_pressed("crouch") or just_landed):
 		if floor_speed >= slide_speed_threshold or wish_dir != Vector3.ZERO:
@@ -436,7 +441,6 @@ func _process_slide(delta: float, on_floor: bool) -> void:
 				dir = Vector3(velocity.x, 0.0, velocity.z).normalized()
 			if dir == Vector3.ZERO:
 				dir = -transform.basis.z
-			# Never slower than you were going — slides keep momentum.
 			slide_velocity = dir * maxf(floor_speed, slide_boost * GameState.stat("slide_mult"))
 			is_sliding = true
 			Sfx.play("dash", -10.0, 0.5)
@@ -482,8 +486,7 @@ func _process_wall_run(delta: float, on_floor: bool) -> void:
 		return
 	var normal := wall_ray_left.get_collision_normal() if on_left else wall_ray_right.get_collision_normal()
 	if absf(normal.y) > 0.3:
-		return # that's a floor or ceiling, not a wall
-	# Anti-spam: Only run if it's a different wall than the last one we jumped off
+		return 
 	if normal.distance_to(last_wall_normal) <= 0.1 or wall_run_timer > max_wall_run_time:
 		return
 
@@ -491,7 +494,6 @@ func _process_wall_run(delta: float, on_floor: bool) -> void:
 	wall_side = -1 if on_left else 1
 	wall_run_timer += delta
 
-	# Calculate forward vector strictly along the wall
 	var wall_forward := Vector3.UP.cross(normal).normalized()
 	if wall_forward.dot(-transform.basis.z) < 0:
 		wall_forward = -wall_forward # Ensure we go the way the player is facing
@@ -524,12 +526,10 @@ func _process_mantle(delta: float, on_floor: bool) -> void:
 	forward.y = 0.0
 	forward = forward.normalized()
 
-	# Wall at chest height...
 	var chest_pos := global_position
 	var chest_query := PhysicsRayQueryParameters3D.create(chest_pos, chest_pos + forward * 1.0, Layers.WORLD_MASK)
 	if space_state.intersect_ray(chest_query).is_empty():
 		return
-	# ...but clear above our head = a ledge we can climb.
 	var head_pos := global_position + Vector3(0, stand_height * 0.8, 0)
 	var head_query := PhysicsRayQueryParameters3D.create(head_pos, head_pos + forward * 1.0, Layers.WORLD_MASK)
 	if not space_state.intersect_ray(head_query).is_empty():
@@ -540,30 +540,30 @@ func _process_mantle(delta: float, on_floor: bool) -> void:
 
 
 func _process_grapple(delta: float) -> void:
-	grapple_ray.target_position = Vector3(0, 0, -GameState.stat("grapple_range"))
-
-	if Input.is_action_just_pressed("grapple") and not is_grappling and grapple_cooldown <= 0.0 and grapple_ray.is_colliding():
-		_start_grapple()
+	if not is_grappling and grapple_cooldown <= 0.0 and grapple_aimed != null:
+		if Input.is_action_just_pressed("grapple"):
+			_start_grapple(grapple_aimed, false)
+		elif Input.is_action_just_pressed("grapple_pull"):
+			_start_grapple(grapple_aimed, true)
 	if not is_grappling:
 		return
 
-	if grapple_enemy != null:
-		if not is_instance_valid(grapple_enemy) or grapple_enemy.is_dead:
-			_end_grapple()
-			return
-		grapple_target = grapple_enemy.chest()
+	if not is_instance_valid(grapple_point):
+		_end_grapple()
+		return
+	grapple_target = grapple_point.global_position
 
+	var held_action := "grapple_pull" if grapple_pulling else "grapple"
 	if jump_buffer > 0.0:
-		# Jump-to-zip: controlled momentum boost toward the anchor (no moon jump)
 		jump_buffer = 0.0
-		var target_dir := (grapple_target - global_position).normalized()
+		var target_dir: Vector3 = (grapple_target - global_position).normalized()
 		velocity += target_dir * 12.0
 		velocity.y += 4.0
 		if velocity.length() > max_grapple_launch_speed:
 			velocity = velocity.normalized() * max_grapple_launch_speed
 		_end_grapple()
 		return
-	if not Input.is_action_pressed("grapple"):
+	if not Input.is_action_pressed(held_action):
 		_end_grapple()
 		return
 
@@ -573,11 +573,10 @@ func _process_grapple(delta: float) -> void:
 	var current_distance := to_target.length()
 	var dir_to_target := to_target / maxf(current_distance, 0.001)
 
-	if grapple_enemy != null:
-		# Heavy enemy: reel ourselves straight in.
-		velocity = velocity.lerp(dir_to_target * grapple_speed, minf(8.0 * delta, 1.0))
-		if current_distance < 2.5:
-			velocity = dir_to_target * 6.0 + Vector3.UP * 5.0
+	if grapple_pulling:
+		velocity = velocity.lerp(dir_to_target * grapple_speed, minf(6.0 * delta, 1.0))
+		if current_distance < 3.0:
+			velocity.y = maxf(velocity.y, jump_velocity * 0.8)
 			_end_grapple()
 		return
 
@@ -591,34 +590,52 @@ func _process_grapple(delta: float) -> void:
 	if current_distance > rope_length:
 		var radial_velocity := velocity.dot(dir_to_target)
 		if radial_velocity < 0:
-			velocity -= dir_to_target * radial_velocity # Kill velocity going directly away from pivot
-		# Spring tension to pull you in an arc
+			velocity -= dir_to_target * radial_velocity 
 		velocity += dir_to_target * (current_distance - rope_length) * 45.0 * delta
 
 	velocity.y = minf(velocity.y, 18.0)
-	velocity.x *= 0.999 # Very light air resistance
+	velocity.x *= 0.999 
 	velocity.z *= 0.999
 
 
-func _start_grapple() -> void:
-	var collider := grapple_ray.get_collider()
-	var point := grapple_ray.get_collision_point()
+func _find_grapple_point() -> Node3D:
+	var cam_pos: Vector3 = camera.global_position
+	var forward: Vector3 = -camera.global_transform.basis.z
+	var max_range: float = GameState.stat("grapple_range")
+	var space := get_world_3d().direct_space_state
+	var best: Node3D = null
+	var best_score := INF
+	for node in get_tree().get_nodes_in_group(grapple_group):
+		var point := node as Node3D
+		if point == null or not point.is_visible_in_tree():
+			continue
+		var to_point: Vector3 = point.global_position - cam_pos
+		var dist: float = to_point.length()
+		if dist > max_range or dist < 1.5:
+			continue
+		var angle: float = rad_to_deg(forward.angle_to(to_point))
+		if angle > grapple_aim_angle:
+			continue
+		var q := PhysicsRayQueryParameters3D.create(cam_pos, point.global_position, Layers.WORLD_MASK)
+		var hit := space.intersect_ray(q)
+		if not hit.is_empty():
+			var hit_pos: Vector3 = hit["position"]
+			if hit_pos.distance_to(point.global_position) > 2.0:
+				continue
+		# Mostly prefer what's nearest the crosshair, slightly prefer closer points.
+		var score: float = angle + dist * 0.05
+		if score < best_score:
+			best_score = score
+			best = point
+	return best
+
+
+func _start_grapple(point: Node3D, pull: bool) -> void:
 	Sfx.play("grapple", -4.0)
-	grapple_enemy = null
-	if collider is Enemy:
-		var enemy := collider as Enemy
-		if enemy.is_dead:
-			return
-		if enemy.is_light:
-			# Light enemies get yanked to us instead.
-			enemy.yank_toward(global_position + Vector3.UP, self)
-			Fx.tracer(_rope_start(), point, Color(0.55, 0.38, 0.2), 0.04, 0.15)
-			GameState.add_style("WHIPLASH", 10)
-			grapple_cooldown = 0.35
-			return
-		grapple_enemy = enemy
-	grapple_target = point
-	rope_length = global_position.distance_to(point)
+	grapple_point = point
+	grapple_pulling = pull
+	grapple_target = point.global_position
+	rope_length = global_position.distance_to(grapple_target)
 	is_grappling = true
 	is_sliding = false
 	is_crouching = false
@@ -629,7 +646,7 @@ func _start_grapple() -> void:
 
 func _end_grapple() -> void:
 	is_grappling = false
-	grapple_enemy = null
+	grapple_point = null
 	grapple_line.visible = false
 	grapple_cooldown = 0.15
 
@@ -698,6 +715,18 @@ func _process_punch() -> void:
 		Fx.shake(0.15)
 		Fx.hitstop(0.04)
 
+func _process_grenade() -> void:
+	if not Input.is_action_just_pressed("grenade") or grenade_timer > 0.0:
+		return
+	grenade_timer = grenade_cooldown
+	var stick := DynamiteProjectile.new()
+	get_tree().current_scene.add_child(stick)
+	stick.global_position = camera.global_transform * Vector3(-0.3, -0.2, -0.8)
+	var aim: Vector3 = -camera.global_transform.basis.z
+	stick.launch(aim * grenade_throw_speed + Vector3.UP * 3.0 + velocity * 0.5, grenade_damage, grenade_radius)
+	weapon_manager.play_punch()
+	Sfx.play("throw", -4.0)
+
 
 ## Where the crosshair is pointing in the world.
 func get_aim_point(max_dist: float = 300.0) -> Vector3:
@@ -733,10 +762,10 @@ func _process_camera_effects(delta: float) -> void:
 		target_tilt = deg_to_rad(30.0)
 	camera.rotation.z = lerp_angle(camera.rotation.z, target_tilt, minf(delta * 10.0, 1.0))
 
-	# Speed lines without the lines: widen the FOV as you go faster.
 	var target_fov := base_fov + clampf((h_speed - walk_speed) * 0.7, 0.0, 22.0)
 	if is_dashing:
 		target_fov += 10.0
+	target_fov *= fov_zoom
 	camera.fov = lerpf(camera.fov, target_fov, minf(delta * 8.0, 1.0))
 
 	var shake: float = Fx.trauma * Fx.trauma * shake_strength
@@ -779,7 +808,6 @@ func is_invulnerable() -> bool:
 	return iframes > 0.0 or is_dead
 
 
-## Called by explosions. Your own explosions only push you (rocket jumps!).
 func apply_explosion(center: Vector3, radius: float, damage: float, from_player: bool) -> void:
 	var d := global_position - center
 	var dist := d.length()
@@ -791,8 +819,6 @@ func apply_explosion(center: Vector3, radius: float, damage: float, from_player:
 	if not from_player:
 		take_damage(damage * clampf(1.0 - dist / (radius * 1.3), 0.35, 1.0), center)
 
-
-## Pushes the player (enemy lassos, knockback attacks).
 func apply_knock(v: Vector3) -> void:
 	if is_dead:
 		return

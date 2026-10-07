@@ -1,9 +1,5 @@
 class_name HUD
 extends CanvasLayer
-## In-game HUD, built in code: health/dash/scrap, weapon slots, style meter,
-## floor + wave info, banners, boss bar, crosshair, screen flashes, the PS1
-## post filter. In-game only: no menus.
-## The player adds this automatically, so it works in any level.
 
 const CrosshairWidget := preload("res://UI/crosshair.gd")
 const VIGNETTE_SHADER: Shader = preload("res://shaders/vignette.gdshader")
@@ -19,6 +15,7 @@ var _hp_label: Label
 var _dash_box: HBoxContainer
 var _dash_pips: Array[ProgressBar] = []
 var _scrap_label: Label
+var _grenade_label: Label
 var _weapon_label: Label
 var _slot_box: HBoxContainer
 var _slot_labels: Array[Label] = []
@@ -225,6 +222,8 @@ func _build() -> void:
 	dash_row.add_child(_dash_box)
 	_scrap_label = UITheme.label("SCRAP 0", 16, UITheme.BRASS)
 	vitals_box.add_child(_scrap_label)
+	_grenade_label = UITheme.label("GRENADE READY", 16, UITheme.TEXT)
+	vitals_box.add_child(_grenade_label)
 
 	var bottom_spacer := Control.new()
 	bottom_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -269,6 +268,12 @@ func _process(delta: float) -> void:
 	for i in _dash_pips.size():
 		_dash_pips[i].value = clampf(player.dash_charges - i, 0.0, 1.0)
 	_scrap_label.text = "SCRAP %d" % GameState.scrap
+	if player.grenade_timer > 0.0:
+		_grenade_label.text = "GRENADE %.1f" % player.grenade_timer
+		_grenade_label.add_theme_color_override("font_color", UITheme.DIM)
+	else:
+		_grenade_label.text = "GRENADE READY [G]"
+		_grenade_label.add_theme_color_override("font_color", UITheme.TEXT)
 
 	_speed_h.text = "H SPEED %d" % int(roundf(Vector2(player.velocity.x, player.velocity.z).length()))
 	_speed_v.text = "V SPEED %d" % int(roundf(player.velocity.y))
@@ -386,7 +391,6 @@ func _flash(color: Color, amount: float) -> void:
 	_vignette = maxf(_vignette, amount)
 
 
-## No death screen: show a banner, then reload the level.
 func _on_died() -> void:
 	show_banner("SCRAPPED", "")
 	await get_tree().create_timer(2.0).timeout

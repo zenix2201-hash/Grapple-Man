@@ -1,10 +1,10 @@
 class_name WeaponManager
 extends Node3D
-## Lives under the camera. Finds every Weapon child, handles switching and
-## firing input, and moves the viewmodel (sway, bob, recoil, switch dip).
-## Also owns the punching arm.
 
 signal weapon_changed(weapon: Weapon, index: int)
+
+const MAX_WEAPONS := 5
+const SLOT_ACTIONS := ["weapon_1", "weapon_2", "weapon_3", "weapon_4", "weapon_5"]
 
 @export var sway_amount: float = 0.0006 ## Per pixel of mouse movement
 @export var sway_max: float = 0.06
@@ -35,6 +35,10 @@ func _ready() -> void:
 	# Automatically find and register all weapons placed inside this manager
 	for child in get_children():
 		if child is Weapon:
+			if weapons.size() >= MAX_WEAPONS:
+				push_warning("WeaponManager: more than %d weapons, '%s' was ignored." % [MAX_WEAPONS, child.name])
+				(child as Weapon).unequip()
+				continue
 			var w := child as Weapon
 			weapons.append(w)
 			w.manager = self
@@ -54,13 +58,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_mouse_delta += (event as InputEventMouseMotion).relative
 
-	# Handle weapon switching via scroll wheel or number keys
-	elif event.is_action_pressed("weapon_1"):
-		switch_weapon(0)
-	elif event.is_action_pressed("weapon_2"):
-		switch_weapon(1)
-	elif event.is_action_pressed("weapon_3"):
-		switch_weapon(2)
+	for i in SLOT_ACTIONS.size():
+		var action: String = SLOT_ACTIONS[i]
+		if InputMap.has_action(action) and event.is_action_pressed(action):
+			switch_weapon(i)
+			break
 
 	if current_weapon != null and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		if event.is_action_pressed("alt_fire"):
@@ -74,7 +76,6 @@ func _physics_process(_delta: float) -> void:
 		return
 	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED or _switch_dip > 0.5:
 		return
-	# Hold to fire. Each weapon's fire_rate decides how fast.
 	if Input.is_action_pressed("fire"):
 		current_weapon.try_attack()
 
@@ -149,7 +150,6 @@ func play_punch() -> void:
 
 
 func _build_arm() -> void:
-	# Left robot arm with a brass knuckle fist. It punches and throws the lasso.
 	_arm = Node3D.new()
 	_arm.name = "PunchArm"
 	_arm.position = _arm_rest

@@ -18,7 +18,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5302806, 1.3717918, -27.350
 
 [node name="Corridor" type="Node3D" parent="." unique_id=431859888]
 
-[node name="Wall2" type="CSGBox3D" parent="Corridor" unique_id=137229103]
+[node name="Wall2" type="CSGBox3D" parent="Corridor" unique_id=137229103 groups=["Grapple point"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.509625, 3.3743305, -44.36546)
 use_collision = true
 size = Vector3(1, 6, 19.124023)

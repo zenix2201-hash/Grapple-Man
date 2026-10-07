@@ -1,8 +1,5 @@
 class_name UpgradeScreen
 extends Control
-## Shown between floors while the lift rises. Pick one of three parts to bolt
-## on (it replaces whatever is in that slot), spend scrap on repairs or a
-## reroll, then head up.
 
 signal finished
 

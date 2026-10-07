@@ -1,7 +1,5 @@
 class_name UITheme
 extends RefCounted
-## Shared look for all menus and the HUD: chunky monospace text, dark rusty
-## panels with brass borders. Also builds the PS1 post-process layer.
 
 const BRASS := Color(0.88, 0.68, 0.32)
 const RUST := Color(0.55, 0.22, 0.12)

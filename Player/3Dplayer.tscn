@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://bcsyurjbmpybq" path="res://Weapon Systems/WeaponManager.gd" id="2_nu38m"]
 [ext_resource type="PackedScene" uid="uid://dh301jdhke2xt" path="res://Weapon Systems/Shotgun/shotgun2.tscn" id="3_jgyil"]
 [ext_resource type="PackedScene" path="res://Weapon Systems/Revolver/revolver.tscn" id="4_rev"]
-[ext_resource type="PackedScene" path="res://Weapon Systems/Dynamite/dynamite.tscn" id="5_dyn"]
+[ext_resource type="Script" path="res://Weapon Systems/Rifle/rifle.gd" id="7_rifle"]
 [ext_resource type="Script" path="res://Player/robot_cowboy_model.gd" id="6_model"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_60xd1"]
@@ -51,8 +51,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, -0.28, -0.5)
 [node name="Shotgun" parent="Head/Camera3D/WeaponManager" instance=ExtResource("3_jgyil")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0.30923456, -0.26516318, -1.1499362)
 
-[node name="Dynamite" parent="Head/Camera3D/WeaponManager" instance=ExtResource("5_dyn")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, -0.3, -0.5)
+[node name="Rifle" type="Node3D" parent="Head/Camera3D/WeaponManager"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28, -0.3, -0.45)
+script = ExtResource("7_rifle")
+weapon_name = "LONGHORN"
+damage = 40.0
+fire_rate = 0.75
+recoil = 0.35
 
 [node name="GrappleLine" type="MeshInstance3D" parent="."]
 top_level = true

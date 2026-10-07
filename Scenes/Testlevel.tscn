@@ -3,13 +3,10 @@
 [ext_resource type="PackedScene" uid="uid://7w6llavxofx5" path="res://Player/3Dplayer.tscn" id="1_tp4to"]
 [ext_resource type="PackedScene" uid="uid://ce0gkocslorpj" path="res://jump_pad/jump_pad_logic.tscn" id="2_vgkgg"]
 [ext_resource type="PackedScene" uid="uid://cbno17ejbl6y" path="res://jump_pad/boost_pickup.tscn" id="3_7vbj4"]
-HEAD
 [ext_resource type="PackedScene" path="res://Enemies/buzzard.tscn" id="4_i4bxf"]
 [ext_resource type="PackedScene" path="res://Enemies/deadeye.tscn" id="5_ilr6r"]
 [ext_resource type="PackedScene" path="res://Enemies/hound.tscn" id="6_rt1uc"]
-=======
 [ext_resource type="PackedScene" uid="uid://bun2aek7gpq84" path="res://Scenes/grapplepoint.tscn" id="4_fm6ny"]
-0fa2e1f08a14cb3a31c011d1fe6441a48de56054
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s1fef"]
 albedo_color = Color(0.61960787, 1, 1, 1)
