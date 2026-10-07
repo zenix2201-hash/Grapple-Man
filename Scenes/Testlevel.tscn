@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://Enemies/buzzard.tscn" id="4_i4bxf"]
 [ext_resource type="PackedScene" path="res://Enemies/deadeye.tscn" id="5_ilr6r"]
 [ext_resource type="PackedScene" path="res://Enemies/hound.tscn" id="6_rt1uc"]
+[ext_resource type="PackedScene" uid="uid://birljmxyp8bgu" path="res://Scenes/lava.tscn" id="8_rt1uc"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s1fef"]
 albedo_color = Color(0.61960787, 1, 1, 1)
@@ -54,7 +55,7 @@ albedo_color = Color(0.039215688, 1, 0, 1)
 [node name="Node3D" type="Node3D" unique_id=1290370400]
 
 [node name="Player" parent="." unique_id=643253925 instance=ExtResource("1_tp4to")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 173.5, 2.5, -8.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 177.6289, 22.30589, -0.876904)
 
 [node name="Node" type="Node" parent="." unique_id=1691015883]
 
@@ -465,3 +466,8 @@ transform = Transform3D(1, 7.327472e-15, -4.470349e-08, 0, 1.0000002, 1.6391274e
 transform = Transform3D(1, 8.940697e-08, -2.9802322e-08, 0, 1.0000002, -2.9802322e-08, 4.4703484e-08, -1.6391277e-07, 1.0000001, 27.73645, 78.91861, -45.340637)
 use_collision = true
 material = SubResource("StandardMaterial3D_v8d4j")
+
+[node name="Lava" parent="." unique_id=839915194 instance=ExtResource("8_rt1uc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 174.04042, -22.666794, -33.42221)
+
+[connection signal="body_entered" from="Lava" to="Player" method="_on_lava_body_entered"]
