@@ -45,6 +45,9 @@ var land_dip: float = 0.0
 @export var slide_decay: float = 0.5
 @export var slide_steer: float = 2.5
 @export var slam_speed: float = 45.0
+@export var slide_slope_accel: float = 1.6
+@export var max_slide_speed: float = 40.0
+@export var slide_boost_cooldown: float = 0.8
 var is_sliding: bool = false
 var is_crouching: bool = false
 var is_slamming: bool = false
@@ -52,6 +55,7 @@ var slide_velocity: Vector3 = Vector3.ZERO
 var slam_start_y: float = 0.0
 var slam_bounce_power: float = 0.0
 var slam_bounce_timer: float = 0.0
+var slide_boost_timer: float = 0.0
 
 # --- DASH ---
 @export_group("Dash")
@@ -206,6 +210,7 @@ func _physics_process(delta: float) -> void:
 	wish_dir = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	var on_floor := is_on_floor()
 	_tick_timers(delta, on_floor)
+	slide_boost_timer = maxf(slide_boost_timer - delta, 0.0)
 
 	_update_grapple_ui()
 	_process_hitbox(delta)
@@ -279,28 +284,28 @@ func _apply_gravity(delta: float) -> void:
 
 func _ground_move(delta: float) -> void:
 	var h := Vector3(velocity.x, 0.0, velocity.z)
-	if wish_dir != Vector3.ZERO:
-		if h.length() > speed + 0.1:
-			var new_len := move_toward(h.length(), speed, overspeed_friction * delta)
-			h = h.lerp(wish_dir * h.length(), minf(6.0 * delta, 1.0)).normalized() * new_len
-		else:
-			h = h.move_toward(wish_dir * speed, ground_accel * delta)
-	else:
+	var h_speed := h.length()
+	if wish_dir == Vector3.ZERO:
 		h = h.move_toward(Vector3.ZERO, ground_friction * delta)
+	elif h_speed > speed + 0.1 and h.normalized().dot(wish_dir) > 0.5:
+		var new_len := move_toward(h_speed, speed, overspeed_friction * delta)
+		h = h.lerp(wish_dir * h_speed, minf(6.0 * delta, 1.0)).normalized() * new_len
+	else:
+		h = h.move_toward(wish_dir * speed, ground_accel * delta)
 	velocity.x = h.x
 	velocity.z = h.z
 
 
-## Quake-style air control: you can steer and strafe freely but never lose
-## the speed you already have.
 func _air_move(delta: float, control: float = 1.0) -> void:
 	if wish_dir == Vector3.ZERO:
 		return
-	var current := velocity.dot(wish_dir)
-	var add_speed := speed - current
-	if add_speed <= 0.0:
-		return
-	velocity += wish_dir * minf(air_accel * speed * control * delta, add_speed)
+	var h := Vector3(velocity.x, 0.0, velocity.z)
+	var cap := maxf(h.length(), speed)
+	h = h.move_toward(wish_dir * cap, air_accel * speed * control * delta)
+	if h.length() > cap:
+		h = h.normalized() * cap
+	velocity.x = h.x
+	velocity.z = h.z
 
 
 func _try_jump(on_floor: bool) -> void:
@@ -439,12 +444,14 @@ func _process_slide(delta: float, on_floor: bool) -> void:
 	if on_floor and holding and not is_sliding and not is_crouching and not is_slamming and not is_dashing \
 			and (Input.is_action_just_pressed("crouch") or just_landed):
 		if floor_speed >= slide_speed_threshold or wish_dir != Vector3.ZERO:
-			var dir := wish_dir
-			if dir == Vector3.ZERO:
-				dir = Vector3(velocity.x, 0.0, velocity.z).normalized()
-			if dir == Vector3.ZERO:
-				dir = -transform.basis.z
-			slide_velocity = dir * maxf(floor_speed, slide_boost * GameState.stat("slide_mult"))
+			var dir := Vector3(velocity.x, 0.0, velocity.z).normalized()
+			if floor_speed < walk_speed * 0.5 or dir == Vector3.ZERO:
+				dir = wish_dir if wish_dir != Vector3.ZERO else -transform.basis.z
+			var start_speed := floor_speed
+			if slide_boost_timer <= 0.0:
+				start_speed = maxf(floor_speed, slide_boost * GameState.stat("slide_mult"))
+				slide_boost_timer = slide_boost_cooldown
+			slide_velocity = dir * start_speed
 			is_sliding = true
 			Sfx.play("dash", -10.0, 0.5)
 		else:
@@ -454,29 +461,42 @@ func _process_slide(delta: float, on_floor: bool) -> void:
 		var jumping := jump_buffer > 0.0 and on_floor
 		if not holding or not on_floor or jumping:
 			if is_sliding and jumping:
-				# Slide-jump: launch out with all of the slide's speed.
 				velocity.x = slide_velocity.x
 				velocity.z = slide_velocity.z
 				velocity.y = jump_velocity * 1.05
 				jump_buffer = 0.0
 				coyote_timer = 0.0
 				Sfx.play("jump", -6.0)
+			if is_sliding:
+				slide_boost_timer = slide_boost_cooldown
 			is_sliding = false
 			is_crouching = false
 			return
 
 	if is_sliding:
+		var n := get_floor_normal()
+		var downhill := Vector3(n.x, 0.0, n.z)
+		if downhill.length() > 0.02:
+			slide_velocity += downhill * gravity * gravity_scale * slide_slope_accel * delta
 		if wish_dir != Vector3.ZERO:
 			var spd := slide_velocity.length()
 			slide_velocity = slide_velocity.lerp(wish_dir * spd, minf(slide_steer * delta, 1.0)).normalized() * spd
-		velocity.x = slide_velocity.x
-		velocity.z = slide_velocity.z
-		slide_velocity *= (1.0 - slide_decay * delta)
+		var flat := downhill.length() < 0.05
+		if flat or slide_velocity.dot(downhill) <= 0.0:
+			slide_velocity *= (1.0 - slide_decay * delta)
+		slide_velocity = slide_velocity.limit_length(max_slide_speed)
+		var along := slide_velocity.slide(n)
+		if along.length() > 0.001:
+			along = along.normalized() * slide_velocity.length()
+		velocity.x = along.x
+		velocity.z = along.z
+		velocity.y = along.y
 		if randf() < 0.3:
 			Fx.sparks(global_position + Vector3.DOWN * 0.9, Vector3.UP - slide_velocity.normalized(), Color(1.0, 0.75, 0.3), 2, 3.0)
 		if slide_velocity.length() < walk_speed * 0.6:
 			is_sliding = false
 			is_crouching = true
+			slide_boost_timer = slide_boost_cooldown
 
 
 func _process_wall_run(delta: float, on_floor: bool) -> void:
