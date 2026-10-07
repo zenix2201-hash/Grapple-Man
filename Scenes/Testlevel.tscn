@@ -3,6 +3,9 @@
 [ext_resource type="PackedScene" uid="uid://7w6llavxofx5" path="res://Player/3Dplayer.tscn" id="1_tp4to"]
 [ext_resource type="PackedScene" uid="uid://ce0gkocslorpj" path="res://jump_pad/jump_pad_logic.tscn" id="2_vgkgg"]
 [ext_resource type="PackedScene" uid="uid://cbno17ejbl6y" path="res://jump_pad/boost_pickup.tscn" id="3_7vbj4"]
+[ext_resource type="PackedScene" path="res://Enemies/buzzard.tscn" id="4_i4bxf"]
+[ext_resource type="PackedScene" path="res://Enemies/deadeye.tscn" id="5_ilr6r"]
+[ext_resource type="PackedScene" path="res://Enemies/hound.tscn" id="6_rt1uc"]
 [ext_resource type="PackedScene" uid="uid://bun2aek7gpq84" path="res://Scenes/grapplepoint.tscn" id="4_fm6ny"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s1fef"]
@@ -437,6 +440,15 @@ mesh = SubResource("PrismMesh_s1fef")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="." unique_id=2107343228]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 110, 0, 0)
+
+[node name="Buzzard" parent="." unique_id=372830223 instance=ExtResource("4_i4bxf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 255, 13.35214, 24.08874)
+
+[node name="Deadeye" parent="." unique_id=1377473090 instance=ExtResource("5_ilr6r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 255.00002, 6.8576536, -10.891556)
+
+[node name="Hound" parent="." unique_id=1997857926 instance=ExtResource("6_rt1uc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 189.96683, 1, 32.31584)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=954947452]
 transform = Transform3D(-0.73069125, 0.32355693, 0.6011665, 0.32494235, -0.6096003, 0.72304916, 0.6004188, 0.72367007, 0.34029227, 193.551, 128.0842, -3.150776)
