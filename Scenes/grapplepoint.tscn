@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://bun2aek7gpq84"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fm6ny"]
+albedo_color = Color(0.42745098, 1, 0, 1)
+
+[node name="Grapplepoint" type="CSGSphere3D" unique_id=1206970455 groups=["Grapple point"]]
+transform = Transform3D(1, 8.940697e-08, -2.9802322e-08, 0, 1.0000002, -2.9802322e-08, 4.4703484e-08, -1.6391277e-07, 1.0000001, 0, 0, 0)
+use_collision = true
+material = SubResource("StandardMaterial3D_fm6ny")
