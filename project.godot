@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Cowboy Lasso"
-run/main_scene="uid://cr0i1obdfvlpe"
+run/main_scene="uid://cnuhu2uxvcdm6"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
 [autoload]

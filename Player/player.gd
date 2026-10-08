@@ -912,7 +912,3 @@ func _on_parts_changed() -> void:
 		health += max_health - old_max
 	health = minf(health, max_health)
 	health_changed.emit(health, max_health)
-
-
-func _on_lava_body_entered(body: Node3D) -> void:
-	get_tree().reload_current_scene()
