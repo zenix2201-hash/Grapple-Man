@@ -2,5 +2,9 @@
 
 [ext_resource type="Script" uid="uid://dqb6lms4y53mg" path="res://Weapon Systems/Rifle/rifle.gd" id="1_fxohg"]
 
-[node name="Rifle" type="Node2D" unique_id=411229340]
+[node name="Rifle" type="Node3D" unique_id=656044046]
 script = ExtResource("1_fxohg")
+weapon_name = "LONGHORN"
+damage = 40.0
+fire_rate = 0.75
+recoil = 0.35

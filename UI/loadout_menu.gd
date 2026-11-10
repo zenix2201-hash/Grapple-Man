@@ -11,7 +11,7 @@ var _start_button: Button
 
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	theme = UITheme.get_theme()
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -30,11 +30,11 @@ func _unhandled_input(event: InputEvent) -> void:
 func _build() -> void:
 	var bg := ColorRect.new()
 	bg.color = Color(0.06, 0.035, 0.03)
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
 
 	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side in ["margin_left", "margin_right"]:
 		margin.add_theme_constant_override(side, 64)
 	margin.add_theme_constant_override("margin_top", 48)
@@ -127,13 +127,9 @@ func _make_card(id: String) -> Button:
 
 func _on_card_toggled(on: bool, id: String) -> void:
 	if on:
-		if _selected.size() >= WeaponDB.MAX_LOADOUT:
-			# Belt is full: refuse the pick.
-			Sfx.play("hurt", -12.0, 1.6)
-			(_cards[id] as Button).set_pressed_no_signal(false)
-			_flash_summary()
-			return
 		if not _selected.has(id):
+			if _selected.size() >= WeaponDB.MAX_LOADOUT:
+				_selected.pop_back() # Belt full: swap out the last pick
 			_selected.append(id)
 		Sfx.play("ui_select", -8.0)
 	else:

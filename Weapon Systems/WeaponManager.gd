@@ -31,20 +31,9 @@ func _ready() -> void:
 	player = owner as Player
 	if player == null:
 		player = get_tree().get_first_node_in_group("player") as Player
-		
+
 	if not GameState.loadout.is_empty():
 		_apply_loadout(GameState.loadout)
-		
-func _apply_loadout(ids: Array) -> void:
-	for child in get_children():
-		if child is Weapon:
-			remove_child(child)
-			child.queue_free()
-	for id in ids:
-		var w: Weapon = WeaponDB.instantiate(String(id))
-		if w != null:
-			add_child(w)
-
 
 	# Automatically find and register all weapons placed inside this manager
 	for child in get_children():
@@ -64,6 +53,18 @@ func _apply_loadout(ids: Array) -> void:
 	# Equip the first gun if any exist
 	if weapons.size() > 0:
 		switch_weapon(0)
+
+
+func _apply_loadout(ids: Array) -> void:
+	for child in get_children():
+		if child is Weapon:
+			remove_child(child)
+			child.queue_free()
+	for id in ids:
+		var w: Weapon = WeaponDB.instantiate(String(id))
+		if w != null:
+			add_child(w)
+
 
 
 func _unhandled_input(event: InputEvent) -> void:

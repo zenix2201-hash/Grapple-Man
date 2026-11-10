@@ -2,5 +2,10 @@
 
 [ext_resource type="Script" uid="uid://bv318o82s3uwg" path="res://Weapon Systems/Sword/sword.gd" id="1_vxjgn"]
 
-[node name="Sword" type="Node2D" unique_id=513426380]
+[node name="Sword" type="Node3D"]
 script = ExtResource("1_vxjgn")
+weapon_name = "SIDEWINDER"
+damage = 35.0
+fire_rate = 0.38
+recoil = 0.05
+max_range = 3.0

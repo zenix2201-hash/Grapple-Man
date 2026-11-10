@@ -2,5 +2,10 @@
 
 [ext_resource type="Script" uid="uid://barmnpbpqnh27" path="res://Weapon Systems/Tesla/tesla.gd" id="1_moof1"]
 
-[node name="Tesla" type="Node2D" unique_id=711455590]
+[node name="Tesla" type="Node3D"]
 script = ExtResource("1_moof1")
+weapon_name = "STORMCALLER"
+damage = 26.0
+fire_rate = 0.55
+recoil = 0.2
+max_range = 60.0

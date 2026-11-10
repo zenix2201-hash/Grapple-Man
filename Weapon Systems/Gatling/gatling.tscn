@@ -1,6 +1,10 @@
 [gd_scene format=3 uid="uid://bnynyiiw6a61t"]
 
-[ext_resource type="Script" uid="uid://dm2057otv68ma" path="res://Weapon Systems/Gatling/gatling.gd" id="1_6ykqk"]
+[ext_resource type="Script" uid="uid://dm2057otv68ma" path="res://Weapon Systems/Gatling/Gatling.gd" id="1_6ykqk"]
 
-[node name="Gatling" type="Node2D" unique_id=8430479]
+[node name="Gatling" type="Node3D"]
 script = ExtResource("1_6ykqk")
+weapon_name = "DUST DEVIL"
+damage = 7.0
+fire_rate = 0.05
+recoil = 0.04
