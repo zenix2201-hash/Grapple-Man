@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dr6ookxh7r2t4"]
+
+[ext_resource type="Script" uid="uid://dqb6lms4y53mg" path="res://Weapon Systems/Rifle/rifle.gd" id="1_fxohg"]
+
+[node name="Rifle" type="Node2D" unique_id=411229340]
+script = ExtResource("1_fxohg")

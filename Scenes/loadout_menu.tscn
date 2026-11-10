@@ -1,3 +1,8 @@
 [gd_scene format=3 uid="uid://raubm1f6eaqv"]
 
-[node name="LoadoutMenu" type="Node2D" unique_id=1729070877]
+[ext_resource type="Script" uid="uid://crign1b6qxeyb" path="res://UI/loadout_menu.gd" id="1_3jlq8"]
+
+[node name="LoadoutMenu" type="Control" unique_id=1949421508]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_3jlq8")

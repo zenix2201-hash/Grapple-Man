@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://b3bx5oq8chk8i"]
+
+[ext_resource type="Script" uid="uid://barmnpbpqnh27" path="res://Weapon Systems/Tesla/tesla.gd" id="1_moof1"]
+
+[node name="Tesla" type="Node2D" unique_id=711455590]
+script = ExtResource("1_moof1")

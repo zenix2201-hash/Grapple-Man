@@ -79,6 +79,9 @@ func _build() -> void:
 	_streams["wave"] = _synth(0.80, 220.0, 110.0, 0.1, 2.5, 3000.0, "square")
 	_streams["ui_move"] = _synth(0.05, 1200.0, 1200.0, 0.0, 30.0, 6000.0, "square")
 	_streams["ui_select"] = _synth(0.12, 600.0, 1200.0, 0.0, 15.0, 6000.0, "square")
+	_streams["slash"] = _synth(0.18, 0.0, 0.0, 1.0, 16.0, 6500.0, "noise")
+	_streams["gatling"] = _synth(0.12, 320.0, 90.0, 0.8, 24.0, 3800.0, "square")
+	_streams["zap"] = _synth(0.35, 2400.0, 500.0, 0.5, 8.0, 9000.0, "saw")
 
 
 func _synth(length: float, f0: float, f1: float, noise: float, decay: float, cutoff: float, wave: String) -> AudioStreamWAV:
