@@ -61,6 +61,7 @@ var run_time := 0.0
 var best_rank := -1
 var player_health := -1.0 ## Carried between floors. -1 = full.
 var equipped: Dictionary = PartsDB.STARTERS.duplicate()
+var loadout: Array[String] = []
 
 # --- Style ---
 var style_points := 0.0

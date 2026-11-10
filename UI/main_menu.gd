@@ -138,5 +138,4 @@ func _show_settings(open: bool) -> void:
 
 
 func _on_play() -> void:
-	GameState.start_run()
-	GameState.goto_scene(play_scene)
+	GameState.goto_scene("res://Scenes/loadout_menu.tscn")
